@@ -1,0 +1,169 @@
+{
+  "id": "m2-ci-definition",
+  "module": "m2",
+  "kind": "theory",
+  "title": "Computational Indistinguishability — the Definition",
+  "reading": {
+    "text": "Self-contained lesson. Optional background: Goldreich's Primer, Ch. 2 (indistinguishability & Thm 2.14)",
+    "url": "https://www.wisdom.weizmann.ac.il/~oded/PSX/prg08.pdf"
+  },
+  "body": "## From generators to ensembles\n\n- A PRG is a special case of a more general notion: **computational indistinguishability** of ensembles.\n- Ensemble = infinite sequence of random variables `{Z_n}`, each over strings of length polynomially related to n (@def:ensemble).\n- PRG def ⇔ `{G(U_k)}_k` ≡_c `{U_ℓ(k)}_k`; indistinguishable from uniform ⇒ **pseudorandom**.\n\n## Definition 2.4 (computational indistinguishability)\n\n$$\\{X_n\\}_n \\equiv_c \\{Y_n\\}_n \\iff \\forall \\text{PPT } D,\\ \\forall \\text{poly } p,\\ \\forall^\\infty n:\\quad |\\Pr[D(X_n){=}1] - \\Pr[D(Y_n){=}1]| < 1/p(n)$$\n\n- D = judge receiving one sample; outputs 1 for \"came from X\".\n- LHS is the **distinguishing gap**; def requires it negligible for every feasible D.\n- Probabilities over the sample *and* D's internal coins.\n\n### Quantifier order matters\n\n- **∀D ∃ε_D** (def): bound may depend on D — the interesting, achievable case.\n- **∃ε ∀D** (one uniform bound) = **statistical closeness** — far too strong.\n\n## Statistical closeness \n\n$$\\Delta(X,Y) = \\tfrac{1}{2}\\sum_v |\\Pr[X{=}v]-\\Pr[Y{=}v]| = \\max_S(\\Pr[X{\\in}S]-\\Pr[Y{\\in}S])$$\n\n- **Statistically close ⟹ computationally indistinguishable** (any D's gap ≤ Δ).\n- **Converse fails**: statistically far yet computationally indistinguishable ensembles exist — the interesting case.\n- PRG canonical example: G(U_k) statistically far from U_ℓ(k) (tiny range), yet ≡_c.\n- By @thm:2.14, PRGs exist ⇔ one-way functions exist.\n\n## Why this is the pivot\n\n- Indistinguishable distributions are treated as *the same* for all practical purposes (@def:ci).\n- Underlies pseudorandomness, powers the hybrid argument, and ties the theory to one-way functions.\n\n## Theorem 2.14: PRGs exist iff one-way functions exist\n\nThis is the central existence theorem of Chapter 2. A **one-way function** is a function f that is easy to evaluate but hard to invert on average: for every PPT algorithm A′, every positive polynomial p, and all sufficiently large n,\n\n$$\\Pr_{x \\leftarrow \\{0,1\\}^n}[A'(f(x), 1^n) \\in f^{-1}(f(x))] < \\frac{1}{p(n)}$$\n\n**Theorem 2.14.** Pseudorandom generators exist if and only if one-way functions exist.\n\n*Easy direction (PRG ⟹ one-way function).* Let G be a PRG with stretch ℓ(k) = 2k, and define f(x, y) = G(x) for x, y ∈ {0,1}^k. Then f is polynomial-time computable and length-preserving. If f were not one-way, an algorithm inverting it could distinguish G(U_k) from U_{2k}: on input z, invert f(z) to get (x, y) and check G(x) = z. Inverting works on the distribution f(U_{2k}) ≡ G(U_k), whereas a uniform z ∈ {0,1}^{2k} has a preimage under f with probability only 2^k / 2^{2k} = 2^{-k} — negligible. So an inverter is a perfect distinguisher, contradiction.\n\n*Hard direction (one-way function ⟹ PRG).* The known construction is quite complex (HILL). Two of the core ideas: (1) hash f(U_k) down to a string of length comparable to the *entropy* of f(U_k), making it almost uniform; (2) compensate for the resulting length loss (k′ < k) by extracting k − k′ bits from the seed U_k itself via hashing — the point being that this hash value does not make inverting any easier. We will not spell out the full HILL construction; the concrete, implementable special case (hard-core predicates + the BMY iteration) is the subject of M4. What matters for this course is the *equivalence*: pseudorandomness and average-case hardness are the same phenomenon, and the hybrid argument (the tool of the next lesson) is the bridge that turns this existence theorem into concrete secure constructions.",
+  "defs": [
+    {
+      "id": "ci",
+      "name": "Computational Indistinguishability",
+      "statement": "$$\\{X_n\\}_n \\equiv_c \\{Y_n\\}_n$$ iff for every PPT distinguisher D and every polynomial p, for all sufficiently large n: $$|\\Pr[D(X_n){=}1] - \\Pr[D(Y_n){=}1]| < 1/p(n)$$",
+      "intuition": "No efficient procedure can tell the two ensembles apart, even by a hair."
+    },
+    {
+      "id": "ensemble",
+      "name": "Probability ensemble",
+      "statement": "An infinite sequence of random variables $$\\{Z_n\\}_{n \\in \\mathbb{N}}$$ such that each Z_n ranges over strings of length polynomially related to n.",
+      "intuition": "A family of distributions indexed by a size parameter n — the unit of comparison in computational indistinguishability."
+    }
+  ],
+  "theorems": [
+    {
+      "id": "2.14",
+      "name": "Theorem 2.14: PRGs exist iff one-way functions exist",
+      "statement": "Pseudorandom generators exist if and only if one-way functions exist. (⟸, the interesting direction) Any one-way function can be used to construct a PRG — via hard-core predicates, hashing to the entropy of f(U_k), and extracting compensating bits from the seed; the full HILL construction is complex. (⟹, easy direction) If G is a PRG with stretch ℓ(k) = 2k, then f(x, y) = G(x) for |x| = |y| = k is a one-way function: an inverter would let a distinguisher separate G(U_k) from U_{2k} by inverting and checking, while a uniform 2k-bit string has a preimage under f only with negligible probability.",
+      "intuition": "The existence of general-purpose PRGs is exactly equivalent to the existence of one-way functions; the hard direction builds pseudorandomness from average-case hardness."
+    }
+  ],
+  "checkpoints": [
+    {
+      "qid": "m2ci-cp-1",
+      "question": "What does it mean for the distinguishing gap d_D(n) = |Pr[D(X_n)=1] − Pr[D(Y_n)=1]| to be a negligible function of n?",
+      "options": [
+        {
+          "text": "For every positive polynomial p, for all sufficiently large n: d_D(n) < 1/p(n).",
+          "is_correct": true
+        },
+        {
+          "text": "d_D(n) < 1/2 for every n.",
+          "is_correct": false
+        },
+        {
+          "text": "d_D(n) tends to 0 as n → ∞ (e.g., d_D(n) = 1/log n).",
+          "is_correct": false
+        },
+        {
+          "text": "d_D(n) = 0 for all sufficiently large n.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "Negligible means smaller than the reciprocal of every positive polynomial, on all but finitely many n — so 1/log n does not qualify (it is larger than 1/poly for p(n) = n), and neither does a constant bound like 1/2. Exact zero is far too strong: indistinguishability only requires the gap to be negligible. The right intuition: an event that occurs with negligible probability stays negligible after a feasible (polynomial) number of repetitions."
+    },
+    {
+      "qid": "m2ci-cp-2",
+      "question": "Why is it enough that distinguishers output a single bit (the 1 in Pr[D(·)=1])?",
+      "options": [
+        {
+          "text": "Any meaningful test can be encoded as a 1-bit verdict (“accept” vs “reject”); more complex outputs would give an equivalent or coarser comparison, and the absolute value can be dropped without changing the definition.",
+          "is_correct": true
+        },
+        {
+          "text": "Polynomial-time algorithms can only compute single bits.",
+          "is_correct": false
+        },
+        {
+          "text": "Because the samples are single strings rather than distributions.",
+          "is_correct": false
+        },
+        {
+          "text": "It is a tradition inherited from Shannon, not a mathematical fact.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "A distinguisher is a decision procedure: everything it might “say” about a sample reduces to whether it accepts (outputs 1) or not, and the comparison of acceptance probabilities |Pr[D(X_n)=1] − Pr[D(Y_n)=1]| captures exactly the advantage of any such test. The Primer notes that the absolute value can be omitted without affecting the definition (§2.3.1), which is why the gap is usually written without it."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "m2ci-ex-1",
+      "prompt": "Prove: if two ensembles are statistically close (Δ(X_n, Y_n) ≤ 1/p(n) for every positive polynomial p, for all sufficiently large n), then they are computationally indistinguishable.",
+      "hint": "Use Δ(X,Y) = max_S (Pr[X∈S] − Pr[Y∈S]) and take S to be the set of strings on which D outputs 1.",
+      "has_solution": true
+    },
+    {
+      "id": "m2ci-ex-2",
+      "prompt": "Show that Definition 2.1 is the special case of Definition 2.4 in which one ensemble is uniform, and state what Theorem 2.14 adds.",
+      "hint": "Which two ensembles appear in the inequality of Definition 2.1? What does §2.3.1 call an ensemble that is indistinguishable from uniform?",
+      "has_solution": true
+    }
+  ],
+  "media": {
+    "videos": [
+      {
+        "id": "stat_vs_comp",
+        "file": "stat_vs_comp.mp4",
+        "title": "Statistical closeness vs computational indistinguishability",
+        "duration_sec": 21.2,
+        "chapters": [
+          {
+            "label": "Histograms: Δ(X, Y) ≈ 0.70",
+            "t": 2.8
+          },
+          {
+            "label": "An efficient test: coarse projection",
+            "t": 8.5
+          },
+          {
+            "label": "Payoff: X ≡_c Y",
+            "t": 16.5
+          }
+        ],
+        "before": {
+          "qid": "svc-before",
+          "question": "If two histograms look very different, must some efficient test be able to tell the two distributions apart?",
+          "options": [
+            {
+              "text": "No — statistical distance bounds only the best possible (information-theoretically optimal) test, while computational indistinguishability only requires that every efficient (PPT) test see a negligible gap.",
+              "is_correct": true
+            },
+            {
+              "text": "Yes — any visible difference in the shapes of the histograms is automatically detectable by a polynomial-time algorithm.",
+              "is_correct": false
+            },
+            {
+              "text": "Yes — the variation distance is exactly the largest gap any efficient test can achieve, and here it is large.",
+              "is_correct": false
+            },
+            {
+              "text": "Only when the two histograms have disjoint supports; overlapping bars make every test powerless.",
+              "is_correct": false
+            }
+          ],
+          "explanation": "Computational indistinguishability quantifies over efficient distinguishers only: for every probabilistic polynomial-time D, the gap |Pr[D(X_n)=1] − Pr[D(Y_n)=1]| must be negligible (§2.3.1). Statistical distance is an information-theoretic measure: it equals the advantage of the best possible, computationally unbounded test (§2.3.2). A large statistical distance therefore does not force any efficient test to succeed; the interesting cases of computational indistinguishability are exactly those where statistically far ensembles fool every efficient algorithm."
+        },
+        "after": {
+          "qid": "svc-after",
+          "question": "Why does a large statistical distance Δ(X, Y) not contradict the claim X ≡_c Y (computational indistinguishability)?",
+          "options": [
+            {
+              "text": "Because X ≡_c Y only requires every efficient (PPT) distinguisher to have a negligible gap, while Δ(X, Y) is an information-theoretic bound on the best possible test, which may be computationally infeasible.",
+              "is_correct": true
+            },
+            {
+              "text": "Because statistical distance is defined relative to a particular polynomial-time algorithm and changes with the algorithm.",
+              "is_correct": false
+            },
+            {
+              "text": "Because the formula for Δ(X, Y) only holds approximately when the distributions are efficiently samplable.",
+              "is_correct": false
+            },
+            {
+              "text": "Because Δ(X, Y) measures overlap of the distributions, while X ≡_c Y ignores the supports of the distributions entirely.",
+              "is_correct": false
+            }
+          ],
+          "explanation": "Statistical closeness (Δ(X_n, Y_n) ≤ 1/p(n) for every positive polynomial p) is a sufficient but not necessary condition for computational indistinguishability (§2.3.2). The gap of any PPT distinguisher D is bounded by Δ(X_n, Y_n) — any algorithm's acceptance region is a set S — but the converse fails: the optimal test witnessing the large variation distance need not be efficiently computable. The PRG case is the canonical example: G(U_k) is statistically far from U_{ℓ(k)} (its range is tiny), yet the two ensembles are computationally indistinguishable by Definition 2.1."
+        }
+      }
+    ]
+  },
+  "schema_version": 1,
+  "audio": {
+    "file": "m2-ci-definition.mp3"
+  }
+}

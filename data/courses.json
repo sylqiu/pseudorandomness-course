@@ -1,0 +1,86 @@
+[
+  {
+    "id": "pseudorandomness-primer",
+    "title": "Pseudorandomness: From Computational Indistinguishability to Derandomization",
+    "subtitle": "Based on Oded Goldreich, \"Pseudorandom Generators: A Primer\" (2008)",
+    "source_url": "https://www.wisdom.weizmann.ac.il/~oded/c-indist.html",
+    "modules": [
+      {
+        "id": "m1",
+        "title": "Three Theories of Randomness & the General Paradigm",
+        "lessons": [
+          {
+            "id": "m1-three-theories",
+            "title": "Three Theories of Randomness",
+            "kind": "theory"
+          },
+          {
+            "id": "m1-general-paradigm",
+            "title": "The General Paradigm: Three Fundamental Aspects",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "m2",
+        "title": "Computational Indistinguishability",
+        "lessons": [
+          {
+            "id": "m2-prg-definition",
+            "title": "General-Purpose Pseudorandom Generators — Definition 2.1",
+            "kind": "theory"
+          },
+          {
+            "id": "m2-ci-definition",
+            "title": "Computational Indistinguishability — the Definition",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "checkpoint",
+        "title": "Checkpoints: M1 & M2",
+        "lessons": [
+          {
+            "id": "m1-m2-checkpoints",
+            "title": "Checkpoints: M1 & M2",
+            "kind": "mcq"
+          }
+        ]
+      },
+      {
+        "id": "m3",
+        "title": "Hybrid Argument & Secure Encryption",
+        "lessons": [
+          {
+            "id": "hybrid-argument-text",
+            "title": "The Hybrid Argument — From a Short Key to Secure Encryption",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "m4",
+        "title": "Constructions: Hard-Core Predicates, BMY, and BBS",
+        "lessons": [
+          {
+            "id": "m4-bmy-bbs",
+            "title": "A Concrete PRG: Hard-Core Predicates, the BMY Construction, and BBS",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "media",
+        "title": "Core Visualizations",
+        "lessons": [
+          {
+            "id": "media-hybrid-argument",
+            "title": "The Hybrid Argument — Core Visualization",
+            "kind": "theory"
+          }
+        ]
+      }
+    ]
+  }
+]

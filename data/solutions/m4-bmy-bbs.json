@@ -1,0 +1,16 @@
+{
+  "exercises": [
+    {
+      "id": "m4bbs-ex-1",
+      "solution": "Solution skeleton:\n- A(y): β ← {0,1}; if D(yβ) = 1 output β else output 1−β.\n- Pr[A(f(U_n)) = b(U_n)] = Pr[D(f(U_n)U₁)=1 ∧ U₁=b(U_n)] + Pr[D(f(U_n)U₁)=0 ∧ 1−U₁=b(U_n)].\n- U₁ independent of U_n: = ½·Pr[D(fb)=1] + ½·(1 − Pr[D(fb̄)=1]) = ½ + ½(Pr[D(fb)=1] − Pr[D(fb̄)=1]).\n- From D's gap against uniform: |Pr[D(G(U_n))=1] − Pr[D(U_{n+1})=1]| > 1/p(n), and U_{n+1} is fb with prob ½, fb̄ with prob ½, so Pr[D(fb)=1] − Pr[D(fb̄)=1] > 2/p(n).\n- Hence Pr[A(f(U_n)) = b(U_n)] > ½ + 1/p(n), contradicting b hard-core. ∎"
+    },
+    {
+      "id": "m4bbs-ex-2",
+      "solution": "Solution skeleton:\n- Suppose PPT I inverts f with success δ(n) = Pr_x[I(f(x)) ∈ f⁻¹(f(x))] non-negligible. Because f is 1-1, f⁻¹(f(x)) = {x}, so I(f(x)) = x whenever it succeeds.\n- Build predictor A(y) = b(I(y)). Then Pr[A(f(U_n)) = b(U_n)] ≥ Pr[I succeeds] = δ(n).\n- If δ(n) > 1/2 + 1/p(n) for some polynomial p, this directly contradicts hard-coreness (advantage over 1/2 must be negligible). Since inversion success must be negligible, δ(n) is negligible — f is one-way. (If δ ≤ 1/2 + negligible, still negligible advantage; one-wayness only requires < 1/p(n), which δ satisfies.) ∎"
+    },
+    {
+      "id": "m4bbs-ex-3",
+      "solution": "Solution skeleton:\n- x₀ = 3² mod 77 = 9 → LSB 1.\n- x₁ = 9² = 81 mod 77 = 4 → LSB 0.\n- x₂ = 4² = 16 → LSB 0.\n- x₃ = 16² = 256 mod 77 = 25 → LSB 1.\n- x₄ = 25² = 625 mod 77 = 9 → LSB 1 (state cycles back to 9).\n- Output: 10011… (first 5 bits; the orbit has period 4 in this toy example).\n- Why x₀ = s²: the security analysis (BMY) needs f to act as a permutation on the state space. For a Blum integer, squaring is a permutation on QR_N but not on all of Z*_N; squaring the seed once moves the state into QR_N, where the no-information-loss condition holds. (Also, s² is uniform over QR_N when s is uniform over Z*_N, which is the natural seed distribution.)"
+    }
+  ]
+}

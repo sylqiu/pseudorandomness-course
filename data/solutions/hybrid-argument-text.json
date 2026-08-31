@@ -1,0 +1,16 @@
+{
+  "exercises": [
+    {
+      "id": "hybtext-ex-1",
+      "solution": "Solution skeleton:\n- D′ on input s ∈ {0,1}^m: choose m₀, m₁ (e.g., 0^m and 1^m) and b ← {0,1}; run D on c = m_b ⊕ s; output 1 if D says \"encryption of m_b\" (i.e., D's guess equals b), else 0.\n- If s = G(k): c is a real ciphertext of m_b, so Pr[D′ = 1] = Pr[D correctly identifies b] = 1/2 + (Pr[D(Enc(m₀))=1] − Pr[D(Enc(m₁))=1])/2.\n- If s = U_m: c is a one-time-pad ciphertext, information-theoretically independent of b, so Pr[D′ = 1] = 1/2.\n- Hence |Pr[D′(G(U_k))=1] − Pr[D′(U_m)=1]| = (1/2)·Adv_D, where Adv_D = |Pr[D(Enc(m₀))=1] − Pr[D(Enc(m₁))=1]|. A non-negligible Adv_D yields a non-negligible PRG distinguishing gap — contradiction. (The factor 1/2 is an artifact of the guessing convention; it does not affect negligibility.)"
+    },
+    {
+      "id": "hybtext-ex-2",
+      "solution": "Solution skeleton:\n- Define H_i = (c₁, …, c_q) with c_j = m_j ⊕ G(seed_j) for j ≤ i and c_j = m_j ⊕ r_j (r_j uniform) for j > i.\n- H_0: all pads uniform — a q-fold one-time pad; by independence each c_j is uniform, so no adversary has any advantage (perfect secrecy).\n- H_q: the real scheme.\n- Step i (H_{i−1} → H_i): build PRG distinguisher D′ on input s: sample m_1…m_q and all pads except the i-th; set c_i = m_i ⊕ s; for j < i use G(seed_j) (computable from sampled seeds), for j > i use fresh random r_j; run the adversary A on (c₁,…,c_q); output A's guess. Then Pr[D′(G(U_k))=1] − Pr[D′(U_m)=1] equals A's advantage between H_{i−1} and H_i (up to the same 1/2 convention), so each step ≤ ε.\n- Total: Σᵢ ε = qε by the triangle inequality.\n- Efficient samplability is used twice: (a) D′ must be able to sample seeds for j < i and random pads for j > i in polynomial time to build the surrounding ciphertexts; (b) the hybrid H_i itself must be a valid distribution for A's input. If an intermediate distribution required, say, inverting G or sampling a non-constructible object, D′ would not be a legitimate PPT — this is ln00a's warning that hybrid members must be poly-time constructible."
+    },
+    {
+      "id": "hybtext-ex-3",
+      "solution": "Solution skeleton:\n- Attack: c₁ ⊕ c₂ = (m₁ ⊕ G(k)) ⊕ (m₂ ⊕ G(k)) = m₁ ⊕ m₂. The XOR of two plaintexts leaks directly — e.g., with ASCII text, spaces (0x20) make the XOR byte a toggle of case, allowing full plaintext recovery by standard crib-dragging. No PRG can prevent this; it is purely a scheme-level flaw.\n- Why the hybrid proof fails: the chain step swaps *only* message i+1's pad to uniform while keeping the others at G(seed). But with a shared seed, all pads are the same string G(k), so a change to one pad 'changes' the whole structure, and the surrounding ciphertexts c_j = m_j ⊕ G(k) for j ≠ i+1 cannot be simulated by the reduction without knowing k — the reduction would need to distinguish G(k) from uniform while simultaneously *using* G(k) for the other messages, which it cannot do given only one challenge string s. Equivalently: the hybrids as defined are not the right ones because the pads are not independent coordinates; the single-coordinate swap that makes the hybrid argument work does not exist. The correct fix is fresh seeds per message (counter/nonce mode), exactly as the lesson's theorem assumes."
+    }
+  ]
+}

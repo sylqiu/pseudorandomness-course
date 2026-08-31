@@ -1,0 +1,8 @@
+{
+  "exercises": [
+    {
+      "id": "m1gp-ex-1",
+      "solution": "Solution skeleton:\n- General-purpose: stretch ℓ(k) > k (any polynomial stretch); distinguisher = any PPT algorithm (possibly more complex than the generator); generator = fixed polynomial time.\n- Derandomization: stretch large (e.g., ℓ(k) = 2^Ω(k) in Chapter 3); distinguisher = fixed circuit of size bounded by a fixed polynomial; generator may run more time than the distinguisher.\n- Space-bounded: the aspects are fixed by the space-complexity of the distinguisher (and the generator), not their time-complexity.\n- Special-purpose: only limited random behavior is required (pairwise independence, small bias, hitting); these can be constructed without any computational complexity assumption.\n- Moral: the same word “pseudorandom generator” covers very different objects; the three aspects disambiguate them."
+    }
+  ]
+}

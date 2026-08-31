@@ -1,0 +1,108 @@
+{
+  "id": "media-hybrid-argument",
+  "module": "media",
+  "kind": "theory",
+  "title": "The Hybrid Argument — Core Visualization",
+  "reading": {
+    "text": "Self-contained lesson. Optional background: Goldreich's Primer, Ch. 2.3–2.4 (hybrid argument, stretch amplification)",
+    "url": "https://www.wisdom.weizmann.ac.il/~oded/PSX/prg08.pdf"
+  },
+  "body": "## The hybrid argument: the central proof technique\n\nThe hybrid argument turns a seemingly hard indistinguishability claim into a chain of easy ones. Given two ensembles X and Y, build a sequence of hybrids H_0,..., H_k in which consecutive hybrids differ in only one component. If every neighboring pair is computationally indistinguishable, the extremes are too:\n\n$$\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i) \\le k \\cdot \\frac{\\varepsilon}{k} = \\varepsilon$$\n\nThe total advantage is bounded by the sum of the per-step advantages (triangle-inequality intuition,), so a polynomial number of steps costs only a polynomial factor (see @def:hybrid).\n\nThis technique powers two workhorse theorems:\n\n- **Proposition 2.6** — single-sample indistinguishability implies indistinguishability by any polynomial number of samples, for polynomial-time constructible ensembles (@thm:prop26). This is what justifies reusing a short key for many messages.\n- **Proposition 2.8** — stretch amplification: any PRG (even one stretching by a single bit, k → k+1) can be converted into a PRG with any desired polynomially bounded stretch (@thm:prop28). This is why we can ignore the specific stretch when talking about the mere existence of PRGs.\n\nWatch the animation to see the chain built step by step.",
+  "defs": [
+    {
+      "id": "hybrid",
+      "name": "The hybrid argument (hybrid technique)",
+      "statement": "To establish indistinguishability of two ensembles X and Y, define hybrids H_0,..., H_k with H_0 = Y and H_k = X, such that consecutive hybrids differ only slightly. If each neighboring pair is computationally indistinguishable, then the distinguishing advantage of the extremes is bounded by the sum of the per-step advantages: $$\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i)$$.",
+      "intuition": "A chain of k small gaps telescopes into one total gap via the triangle inequality; with k polynomially bounded, a negligible per-step gap yields a negligible total gap."
+    }
+  ],
+  "theorems": [
+    {
+      "id": "prop26",
+      "name": "Prop 2.6: many samples stay indistinguishable",
+      "statement": "If X = {X_n} and Y = {Y_n} are polynomial-time constructible and computationally indistinguishable by a single sample, then for every positive polynomial s(·) they are indistinguishable by s(·) independent samples.",
+      "intuition": "What no efficient test can tell apart once, it cannot tell apart polynomially many times — up to a linear loss.",
+      "proof": "hybrids H_n^i = X^i Y^{s(n)−i}; a distinguisher of the extremes with gap ε yields a distinguisher of a random neighboring pair with gap ε/s(n), which yields a single-sample distinguisher that samples the surrounding entries itself (using constructibility)."
+    },
+    {
+      "id": "prop28",
+      "name": "Prop 2.8: stretch amplification",
+      "statement": "Let G₁ be a PRG with stretch ℓ₁(k) = k + 1, and ℓ any polynomially bounded, polynomial-time computable stretch function. Define G(s) = σ₁σ₂⋯σ_{ℓ(|s|)}, where x₀ = s and xᵢσᵢ = G₁(x_{i−1}) — σᵢ is the last bit of G₁(x_{i−1}) and xᵢ is the |s|-bit prefix of G₁(x_{i−1}). Then G is a PRG with stretch ℓ.",
+      "intuition": "A single-bit stretch is enough: by iterating G₁ and keeping the output bits, any polynomial stretch is reachable at no extra assumption.",
+      "proof": "hybrid over i = 0,…,ℓ(k) with H_k^i = U_i ∘ g_{ℓ(k)−i}(U_k) (g_j = j-bit prefix of G); the extremes are G(U_k) and U_{ℓ(k)}, and distinguishing neighboring hybrids reduces to distinguishing G₁(U_k) from U_{k+1}."
+    }
+  ],
+  "media": {
+    "videos": [
+      {
+        "id": "hybrid_chain",
+        "file": "hybrid_chain.mp4",
+        "title": "The Hybrid Argument — step by step",
+        "duration_sec": 93.8,
+        "chapters": [
+          {
+            "label": "Legend & hybrids H_0 … H_k",
+            "t": 18.5
+          },
+          {
+            "label": "Flip sweep: ε/k per step",
+            "t": 35.0
+          },
+          {
+            "label": "Payoff: total advantage ≤ ε",
+            "t": 73.0
+          }
+        ],
+        "before": {
+          "qid": "hyb-before",
+          "question": "If no efficient test can distinguish a single sample of X from a single sample of Y, why should many samples also be indistinguishable?",
+          "options": [
+            {
+              "text": "Because distinguishing many samples would let an efficient algorithm also distinguish some neighboring pair of hybrids, which yields a single-sample distinguisher — contradicting the hypothesis (Proposition 2.6).",
+              "is_correct": true
+            },
+            {
+              "text": "It does not follow: giving an algorithm more samples always lets it tell X from Y more easily.",
+              "is_correct": false
+            },
+            {
+              "text": "Because independent samples concentrate around their means, so many samples make the two distributions harder to tell apart.",
+              "is_correct": false
+            },
+            {
+              "text": "Because the definition of computational indistinguishability already applies directly to sequences of many samples.",
+              "is_correct": false
+            }
+          ],
+          "explanation": "This is exactly Proposition 2.6: for polynomial-time constructible ensembles, single-sample indistinguishability implies indistinguishability by any polynomial number of samples (§2.3.3). The proof builds hybrids H_i consisting of i samples of X followed by s(n) − i samples of Y; an efficient distinguisher of the extreme hybrids must distinguish a random neighboring pair with gap at least ε/s(n), yielding a single-sample distinguisher. The reduction needs both ensembles to be efficiently samplable, which is why polynomial-time constructibility is essential."
+        },
+        "after": {
+          "qid": "hyb-after",
+          "question": "If every neighboring pair of hybrids has advantage ≤ ε/k, why does the whole chain H_0 ... H_k have advantage ≤ ε?",
+          "options": [
+            {
+              "text": "By the triangle inequality: the gap between the extreme hybrids is at most the sum of the k per-step gaps, and k · (ε/k) = ε (§2.3.3, Eq. 2.5).",
+              "is_correct": true
+            },
+            {
+              "text": "Because the hybrids are independent, so their advantages multiply instead of adding.",
+              "is_correct": false
+            },
+            {
+              "text": "Because ε/k is chosen so that the total advantage is exactly ε no matter how many hybrids there are.",
+              "is_correct": false
+            },
+            {
+              "text": "Because the extreme hybrids are identical, so no advantage can accumulate along the chain.",
+              "is_correct": false
+            }
+          ],
+          "explanation": "The distinguishing gap telescopes along the chain: Pr[D(H_0)=1] − Pr[D(H_k)=1] = Σ_i (Pr[D(H_{i-1})=1] − Pr[D(H_i)=1]), so the absolute total is at most the sum of the absolute per-step gaps (§2.3.3, Eq. 2.5). With k steps each bounded by ε/k, the sum is at most ε. This is why the number of hybrids must be polynomially bounded — a super-polynomial number of steps would destroy the bound."
+        }
+      }
+    ]
+  },
+  "checkpoints": [],
+  "exercises": [],
+  "schema_version": 1
+}

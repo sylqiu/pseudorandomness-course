@@ -1,0 +1,154 @@
+{
+  "id": "m4-bmy-bbs",
+  "module": "m4",
+  "kind": "theory",
+  "title": "A Concrete PRG: Hard-Core Predicates, the BMY Construction, and BBS",
+  "reading": {
+    "text": "Self-contained lesson. Optional background: Goldreich's Primer, Ch. 2.5 (hard-core predicates, BMY, BBS); ln00a Ch. 2.3",
+    "url": "https://www.wisdom.weizmann.ac.il/~oded/PSX/prg08.pdf"
+  },
+  "body": "## The goal: turn Theorem 2.14's \"hard direction\" into an actual generator\n\nTheorem 2.14 says PRGs exist if and only if one-way functions exist. The easy direction (PRG ⟹ OWF) we already proved: if G is a PRG with stretch 2k, then f(x, y) = G(x) is one-way. Now the real work: **given a one-way function, build a PRG from it**. This lesson gives the two-step recipe ofand lands on a concrete, implementable generator — **BBS (Blum–Blum–Shub)** — whose security rests on the hardness of factoring.\n\n## Why a one-way function alone is not enough\n\nOne-wayness is a weak promise: it only says *inverting* is hard. It says nothing about **partial information**. Given y = f(x), an adversary may easily learn a lot about x — for example, for f′(x, r) = (f(x), r), the string r appears verbatim in the output, so every bit of r is trivially computable. We need a stronger primitive: a **single bit of the input that no efficient algorithm can guess from the output**.\n\n**Definition 2.10 (hard-core predicate).** A polynomial-time computable predicate b: {0,1}* → {0,1} is called a **hard-core** of a function f if for every probabilistic polynomial-time algorithm A′, every positive polynomial p(·), and all sufficiently large n:\n\n$$\\Pr_{x \\leftarrow U_n}[A'(f(x)) = b(x)] < \\frac{1}{2} + \\frac{1}{p(n)}$$\n\nThree observations that shape the definition:\n\n- **Trivial guessers are already right half the time** — the algorithm that outputs a uniformly random bit succeeds with probability exactly 1/2. The definition only forbids non-negligible *advantage* over 1/2.\n- **A hard-core must be almost unbiased**: if b were biased, the constant predictor \"always output the majority bit\" would beat 1/2. Formally, |Pr[b(U_n)=0] − Pr[b(U_n)=1]| must be negligible.\n- **For 1-1 functions, hard-core ⟹ one-way**: if f is 1-1, polynomial-time computable, and has a hard-core b, then an inverter of f would immediately predict b(x) from f(x) (invert, then evaluate b). So a hard-core is a *stronger* notion than one-wayness.\n\nA predicate can be a hard-core for the *trivial* reason that f discards information: for f(σ, x) = (0, x′), the first bit σ is a hard-core simply because the output contains no information about it. The interesting case is when f is **1-1** (no information loss), so the hardness is purely computational.\n\n**Theorem 2.11 (a generic hard-core, Goldreich–Levin).** For any one-way function f, define g(x, r) = (f(x), r) with |x| = |r|, and let b(x, r) denote the **inner product mod 2** of the binary vectors x and r. Then b is a hard-core of g.\n\nIn words: given f(x) and a random subset r ⊆ [|x|], it is infeasible to guess the XOR of the bits of x in that subset, significantly better than 1/2. This is what makes the whole theory non-vacuous: *every* one-way function can be slightly modified so that it has a hard-core. (The proof is a substantial self-reducibility argument: using pairwise-independent subsets and self-correction by majority, any predictor for b(x, r) on random r is converted into one that works for *every* x — we skip the details.)\n\n## Step 1: the simple construction (Proposition 2.12)\n\n**Proposition 2.12 (a simple construction of PRGs).** Let b be a hard-core predicate of a polynomial-time computable, 1-1, length-preserving function f. Then\n\n$$G(s) \\;=\\; f(s) \\circ b(s)$$\n\nis a pseudorandom generator (stretching |s| bits to |s| + 1 bits).\n\n**Proof.** Since f is 1-1 and length-preserving, it is a **permutation** of {0,1}^n, so the n-bit prefix f(U_n) of G(U_n) is uniformly distributed. It remains to show that appending b(s) is as good as appending a truly random bit — i.e., that f(s)b(s) is indistinguishable from f(s)∘β with β ← U₁.\n\nSuppose, toward a contradiction, that some PPT D distinguishes the ensembles {G(U_n)} and {U_{n+1}} with a non-negligible gap. Since U_{n+1} equals f(U_n)b(U_n) with probability 1/2 and equals f(U_n) b̄(U_n) otherwise (here b̄ = 1−b), the gap between G and uniform gives:\n\n$$\\Pr[D(f(U_n)b(U_n)){=}1] - \\Pr[D(f(U_n)\\bar{b}(U_n)){=}1] > \\frac{2}{p(n)}$$\n\nBuild a predictor A for b from f. On input y = f(x):\n\n1. Select β uniformly in {0,1}.\n2. If D(yβ) = 1, output β; otherwise output 1 − β.\n\nAnalysis: letting U₁ represent the choice of β (independent of U_n),\n\n$$\\Pr[A(f(U_n)) = b(U_n)] = \\Pr[D(f(U_n)U_1){=}1 \\wedge U_1 = b(U_n)] + \\Pr[D(f(U_n)U_1){=}0 \\wedge 1{-}U_1 = b(U_n)]$$\n\n$$= \\frac{1}{2}\\Pr[D(f(U_n)b(U_n)){=}1] + \\frac{1}{2}\\left(1 - \\Pr[D(f(U_n)\\bar{b}(U_n)){=}1]\\right) = \\frac{1}{2} + \\frac{1}{2}\\left(\\Pr[D(fb){=}1] - \\Pr[D(f\\bar{b}){=}1]\\right) > \\frac{1}{2} + \\frac{1}{p(n)}$$\n\ncontradicting that b is a hard-core of f. ∎\n\n**The key move to internalize:** a distinguisher between \"bit is b(x)\" and \"bit is random\" is *automatically* a distinguisher between \"bit is b(x)\" and \"bit is 1−b(x)\" (because a random bit is b(x) half the time), and the latter is exactly a predictor for b. This is the template behind every \"hard-core ⟹ PRG\" argument.\n\n## Step 2: stretching to any polynomial length (the BMY construction, Eq. 2.9)\n\nProp 2.12 gives stretch k → k+1. To reach arbitrary polynomial stretch ℓ, iterate f and harvest one hard-core bit per round. This is the **Blum–Micali–Yao construction** (, Eq. 2.9):\n\n$$G(s) \\;=\\; b(x_0) \\, b(x_1) \\, \\cdots \\, b(x_{\\ell(|s|)-1}), \\qquad x_0 = s,\\; x_i = f(x_{i-1})$$\n\ni.e., G(s) = b(s) ∘ b(f(s)) ∘ b(f²(s)) ∘ ⋯ ∘ b(f^{ℓ(|s|)−1}(s)), where f^i denotes i-fold iteration.\n\n**Theorem (BMY).** If f is a 1-1, length-preserving one-way function with hard-core b, then the G above is a PRG with stretch ℓ.\n\n**Proof — two steps.**\n\n*Step 1 (G(U_k) is next-bit unpredictable, right to left).* An ensemble {Z_k} is **(next-bit) unpredictable** if every PPT machine given a prefix of Z_k fails to predict the next bit with probability non-negligibly better than 1/2. We show G(U_k) is unpredictable when read *right to left* (i.e., for G′(s) = b(x_{ℓ−1}) ⋯ b(x₁)b(x₀), the reversal). Suppose a predictor, given the suffix b(x_{i+1}) ⋯ b(x_{ℓ−1}), predicts b(x_i) with advantage ε. Given y = f(x_i), the predictor can compute x_{i+1} = f(x_i), then x_{i+2} = f(x_{i+1}), …, up to x_{ℓ−1} — all deterministically from y — and thus obtain the suffix b(x_{i+1}) ⋯ b(x_{ℓ−1}) by evaluating the poly-time predicate b. Feeding this suffix to the predictor, we predict b(x_i) from f(x_i) with advantage ε, contradicting that b is a hard-core of f. (Note: the reversal is needed because the reduction must *compute forward* from the given y = f(x_i); reading the output right-to-left turns \"predict the previous bit\" into \"predict b of the current value\".)\n\n*Step 2 (Yao: unpredictable ⟺ pseudorandom).* Clearly pseudorandomness implies unpredictability: a predictor is a distinguisher (check whether the next bit matches the prediction). The converse — unpredictability implies indistinguishability from uniform — is another hybrid argument. Let Z be a polynomial-time constructible ensemble of length m-bit strings. Define the (i+1)-st hybrid to consist of the first i bits of Z, followed by m − i truly random bits. The extreme hybrids are Z and U_m, so a distinguisher between them with gap ε must distinguish some *neighboring* pair (i and i+1) with gap ≥ ε/m (average argument — exactly as in Prop 2.6). But neighboring hybrids i and i+1 differ only in bit i+1: the former has the true (i+1)-st bit of Z, the latter a random bit. A distinguisher for that pair is precisely a next-bit predictor: given the i-bit prefix of Z, guess the (i+1)-st bit, and check which hybrid the sample came from. Hence a distinguisher of the extremes yields a next-bit predictor of Z with advantage ε/m, and the equivalence follows. ∎\n\n**Digest.** Prop 2.12 + BMY + Construction 2.7 (stretch amplification) give: *if a 1-1 length-preserving one-way function exists, then PRGs of every polynomial stretch exist* (Theorem 2.13). Dropping the 1-1 requirement is the hard HILL construction (entropy hashing + seed compensation) — but the skeleton above is the part that is both understandable and directly usable.\n\n## The concrete instance: BBS (Blum–Blum–Shub)\n\nNow instantiate the skeleton with a specific, implementable one-way function.\n\n**Setup (a Blum integer).** Pick two large primes p ≡ q ≡ 3 (mod 4). Let N = pq. Such an N is a **Blum integer**. The candidate one-way function is **modular squaring**:\n\n$$f(x) = x^2 \\bmod N \\quad (x \\in QR_N)$$\n\nand the candidate hard-core predicate is the **least significant bit**: b(x) = LSB(x) = x mod 2.\n\n**Why p ≡ q ≡ 3 (mod 4) matters.** For a Blum integer, −1 has Jacobi symbol 1 but is a *non-residue*, which forces: every quadratic residue has **exactly one** square root that is itself a quadratic residue. Hence squaring is a **permutation of QR_N** — no information loss (the 1-1 condition of Prop 2.12/BMY holds), and the iterated sequence x, x², x⁴, … has no tail, it is purely periodic.\n\n**The BBS generator.** Choose a random seed s, and set the initial state x₀ = s² mod N (to land in QR_N). Output:\n\n$$G(s) = \\mathrm{LSB}(x_0),\\; \\mathrm{LSB}(x_1),\\; \\mathrm{LSB}(x_2),\\; \\ldots, \\qquad x_{i+1} = x_i^2 \\bmod N$$\n\nFor a stretch function ℓ, output the first ℓ(|s|) bits.\n\n**Security (classical theorem, Blum–Blum–Shub 1986).** Under the **Quadratic Residuosity assumption** (equivalently, the hardness of factoring N), LSB is a hard-core predicate of squaring modulo N: no PPT algorithm can predict the next bit of the BBS sequence with advantage non-negligibly better than 1/2. Therefore, by the BMY analysis above, G is a pseudorandom generator.\n\n**The reduction chain.** The proof runs in three steps:\n\n1. **LSB-prediction ⟹ QR-decision.** Suppose A predicts LSB(x) from x² mod N with advantage ε. Use A to decide, for a given z with Jacobi symbol 1, whether z ∈ QR_N. Key fact for Blum N: the four square roots of a QR have LSB patterns that split by whether the root is a residue; combined with a random self-reducibility argument, A's advantage transfers to the QR decision problem.\n2. **QR-decision ⟹ factoring.** For Blum integers, an efficient QR-decider yields a factoring algorithm: pick a random square root r of a random QR, and use the decider to test whether r² ≡ (a specific other root) — with constant probability the two roots are distinct and their difference splits N (gcd(x − y, N) is a nontrivial factor).\n3. Both steps are *polynomial-time reductions*, so a PPT next-bit predictor for BBS would be a PPT factoring algorithm — contradicting the assumption.\n\n**Practical notes.**\n\n- The seed is the state size: k = 256–1024 bits is typical (matching the security level of factoring). The stretch ℓ(k) can be any polynomial; in practice you harvest a bounded number of bits per state update.\n- BBS is slow compared to ad-hoc generators (one modular squaring per output bit) — its value is **provable security**: no statistical test can beat it unless factoring is easy.\n- The same BMY skeleton with f = modular exponentiation and b = most significant bit gives the **Blum–Micali generator**, based on the discrete logarithm problem.\n\n## Why this matters\n\n- **The hybrid argument appears twice in this lesson** — once in Prop 2.12's proof (distinguishing b(x) from random = distinguishing b(x) from 1−b(x)), once in Yao's equivalence (hybrid over prefixes). This is the payoff of M3: the technique you mastered is exactly what turns \"one hard bit\" into \"a whole pseudorandom stream\".\n- **BBS closes the loop of Chapter 2**: definitions (M2) → technique (M3) → construction (M4). You now hold a complete, provably secure PRG in your hands, built from first principles.\n- **It demystifies \"cryptographically secure randomness\"**: the security of the generator is a *theorem* (reducible to factoring), not a heuristic. This is the standard every PRNG used in crypto is held to.",
+  "defs": [
+    {
+      "id": "hardcore",
+      "name": "Hard-core predicate (Definition 2.10)",
+      "statement": "A polynomial-time computable predicate b is a hard-core of f if for every PPT algorithm A′, every positive polynomial p, and all sufficiently large n: $$\\Pr_{x \\leftarrow U_n}[A'(f(x)) = b(x)] < 1/2 + 1/p(n)$$ — no efficient algorithm, given f(x), guesses b(x) non-negligibly better than a coin flip.",
+      "intuition": "The strongest useful notion of 'unpredictable bit': not only can you not find x, you cannot even learn one designated bit of it. For 1-1 f this is strictly stronger than one-wayness."
+    },
+    {
+      "id": "blum-integer",
+      "name": "Blum integer",
+      "statement": "N = p·q where p ≡ q ≡ 3 (mod 4) are primes. Equivalently: every quadratic residue mod N has exactly one square root that is itself a quadratic residue, so squaring is a permutation of QR_N.",
+      "intuition": "The congruence condition makes modular squaring a 1-1 (length-preserving) map on the right domain — exactly the hypothesis needed by the BMY construction — and gives the BBS sequence a clean periodic structure."
+    },
+    {
+      "id": "unpredictable",
+      "name": "Next-bit unpredictability",
+      "statement": "An ensemble {Z_k} is (next-bit) unpredictable if every PPT machine given a prefix of Z_k fails to predict the next bit with probability non-negligibly better than 1/2. Theorem (Yao): a polynomial-time constructible ensemble is pseudorandom if and only if it is next-bit unpredictable.",
+      "intuition": "A stream looks random exactly when each bit is a surprise given the past. The hybrid argument proves this 'local' property is equivalent to the global one (indistinguishability from uniform)."
+    }
+  ],
+  "theorems": [
+    {
+      "id": "thm211",
+      "name": "Theorem 2.11 (Goldreich–Levin): a generic hard-core",
+      "statement": "For any one-way function f, the predicate b(x, r) = inner product mod 2 of x and r is a hard-core of g(x, r) = (f(x), r), where |x| = |r|. I.e., given f(x) and a random subset r, no PPT algorithm can guess the XOR of the bits of x in subset r with advantage non-negligibly better than 1/2.",
+      "intuition": "Every one-way function can be modified to have a hard-core, so the hard-core-based constructions are fully general — the theory never gets stuck for lack of examples.",
+      "proof": "Proof (sketch): the argument uses self-reducibility of the inner product. Given a predictor A that guesses b(x, r) with advantage ε over random r, one first shows A must be correct on a constant fraction of r's for many x's. Then, to compute b(x, e_j) (the j-th bit of x), pick t = O(n/ε²) pairwise-independent random subsets r₁,…,r_t, let r = r₁⊕⋯⊕r_t (uniform), and query A on (f(x), r⊕e_j) and on (f(x), r⊕r_i) for each i; the XOR of the t+1 answers recovers b(x, e_j) by a majority-type self-correction. This inverts f, contradicting one-wayness. ∎"
+    },
+    {
+      "id": "prop212",
+      "name": "Proposition 2.12: simple PRG from hard-core",
+      "statement": "If b is a hard-core of a polynomial-time computable, 1-1, length-preserving f, then G(s) = f(s) ∘ b(s) is a PRG (stretch |s| → |s|+1).",
+      "intuition": "One unpredictable bit per evaluation of f. The reduction template (distinguisher ⟹ predictor) is the core move of all hard-core constructions.",
+      "proof": "f is a permutation so the prefix is uniform; a distinguisher of f(s)b(s) vs f(s)∘random bit is a distinguisher of b(s) vs 1−b(s), which yields a predictor of b(s) from f(s) — contradiction."
+    },
+    {
+      "id": "bmy",
+      "name": "BMY construction (Eq. 2.9): arbitrary polynomial stretch",
+      "statement": "For 1-1 length-preserving one-way f with hard-core b, G(s) = b(s) ∘ b(f(s)) ∘ ⋯ ∘ b(f^{ℓ(|s|)−1}(s)) is a PRG with stretch ℓ.",
+      "intuition": "Iterate the one-way function, harvest one hard-core bit per step. Each bit is 'fresh randomness' because knowing all future bits still does not reveal the current one.",
+      "proof": "(1) G(U_k) is next-bit unpredictable right-to-left — predicting b(x_i) from the suffix b(x_{i+1})⋯b(x_{ℓ−1}) lets you predict b(x_i) from f(x_i) by iterating f forward, contradicting hard-core; (2) Yao: unpredictable ⟺ pseudorandom, via a hybrid over prefixes."
+    },
+    {
+      "id": "bbs",
+      "name": "BBS: Blum–Blum–Shub generator",
+      "statement": "Let N = pq be a Blum integer. Under the Quadratic Residuosity (equivalently, factoring) assumption, LSB is a hard-core of squaring mod N, so G(s) = LSB(x₀) LSB(x₁) ⋯ with x_{i+1} = x_i² mod N and x₀ = s² mod N is a PRG. Reduction chain: LSB-prediction ⟹ QR-decision ⟹ factoring.",
+      "intuition": "A concrete, implementable PRG whose security is a theorem: any next-bit predictor would be a factoring algorithm.",
+      "proof": "Reduction chain (all steps are polynomial-time):\n1. LSB-prediction ⟹ QR-decision. A predictor for LSB(x) from x² mod N, combined with random self-reducibility and the fact that the four square roots of a QR have LSB patterns that split by residuosity, decides quadratic residuosity for Jacobi-symbol-1 inputs.\n2. QR-decision ⟹ factoring. For a Blum integer, an efficient QR-decider yields a factoring algorithm: pick a random square root r of a random QR, use the decider to test whether r² ≡ (a distinct root); with constant probability the two roots differ and gcd(x−y, N) is a nontrivial factor.\nHence a PPT next-bit predictor for BBS would be a PPT factoring algorithm — contradicting the Quadratic Residuosity (factoring) assumption. ∎"
+    }
+  ],
+  "checkpoints": [
+    {
+      "qid": "m4bbs-cp-1",
+      "question": "Why is a one-way function alone not enough to build a PRG, and what does a hard-core predicate add?",
+      "options": [
+        {
+          "text": "One-wayness only says inverting is hard; it allows easy partial information about x (e.g., f′(x,r) = (f(x),r) leaks all of r). A hard-core b guarantees a specific bit of x is unpredictable from f(x), which is the raw material a PRG outputs.",
+          "is_correct": true
+        },
+        {
+          "text": "One-way functions are too slow to evaluate, so we need a faster primitive.",
+          "is_correct": false
+        },
+        {
+          "text": "A hard-core predicate is the same as a one-way function, just written differently.",
+          "is_correct": false
+        },
+        {
+          "text": "One-wayness only holds for 1-1 functions, and PRGs need general functions.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "One-wayness is an inverting guarantee; it says nothing about whether f(x) leaks bits of x. The example f′(x, r) = (f(x), r) shows a perfectly one-way function can reveal half its input verbatim. A hard-core predicate is the strongest 'one bit stays secret' guarantee, and it is exactly the ingredient G(s) = f(s)∘b(s) / BMY harvests to produce pseudorandom bits."
+    },
+    {
+      "qid": "m4bbs-cp-2",
+      "question": "In the proof of Prop 2.12, why is it enough to show f(s)b(s) is indistinguishable from f(s)∘(random bit)?",
+      "options": [
+        {
+          "text": "Because f is 1-1 and length-preserving, f(U_n) alone is already uniform, so the only question is whether the appended bit is as good as random.",
+          "is_correct": true
+        },
+        {
+          "text": "Because the distinguisher is only allowed to look at the last bit.",
+          "is_correct": false
+        },
+        {
+          "text": "Because b(s) is independent of f(s) by definition of hardness.",
+          "is_correct": false
+        },
+        {
+          "text": "Because Prop 2.6 already proves indistinguishability survives appending bits.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "Since f is a permutation of {0,1}^n, the prefix f(U_n) of G(U_n) is perfectly uniform — no distinguisher can gain anything there. The entire security question reduces to the appended bit: replacing b(s) by a uniform bit must be undetectable. The proof then shows 'detecting the swap' is exactly 'predicting b(s) from f(s)'."
+    },
+    {
+      "qid": "m4bbs-cp-3",
+      "question": "Why does the BMY construction read the output right-to-left (unpredictability from right to left) in its proof?",
+      "options": [
+        {
+          "text": "The reduction needs to compute forward from the given y = f(x_i): given y it can compute x_{i+1}, …, x_{ℓ−1} and their hard-core bits, so it can supply the suffix; reading right-to-left turns 'predict the previous bit' into 'predict b of the current value', which contradicts hard-coreness.",
+          "is_correct": true
+        },
+        {
+          "text": "Because f is only one-way when applied from right to left.",
+          "is_correct": false
+        },
+        {
+          "text": "Because LSB is only a hard-core when read from right to left.",
+          "is_correct": false
+        },
+        {
+          "text": "It is a notational convention with no computational content.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "The predictor in the reduction is handed y = f(x_i) and must reconstruct the context that a next-bit predictor would have seen. It can only iterate f *forward* (x_{i+1} = f(x_i), etc.), so the bits it can produce are b(x_{i+1}), …, b(x_{ℓ−1}) — the suffix. Hence the unpredictability claim must be about predicting the *previous* bit from the suffix, i.e., unpredictability of the reversed string."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "m4bbs-ex-1",
+      "prompt": "Write the full reduction in Prop 2.12: given a distinguisher D between G(U_n) = f(U_n)b(U_n) and U_{n+1}, construct the predictor A of b(U_n) from f(U_n) and verify the probability calculation that A succeeds with probability > 1/2 + 1/p(n).",
+      "hint": "A on input y: pick β uniformly, run D(yβ), output β if D accepts, else 1−β. Split the success probability into the two cases U₁ = b(U_n) and U₁ ≠ b(U_n); recall Pr[U_{n+1} = f(U_n)b(U_n)] = 1/2 because f is a permutation.",
+      "has_solution": true
+    },
+    {
+      "id": "m4bbs-ex-2",
+      "prompt": "Prove: if b is a hard-core of a polynomial-time computable 1-1 function f, then f is one-way. (This justifies the claim that hard-coreness is strictly stronger than one-wayness.)",
+      "hint": "Assume an inverter I that finds a preimage of f(x) with non-negligible probability. Since f is 1-1 the preimage is unique — use I to predict b(x).",
+      "has_solution": true
+    },
+    {
+      "id": "m4bbs-ex-3",
+      "prompt": "BBS warm-up: let N = 7·11 = 77 (a Blum integer, since 7 ≡ 11 ≡ 3 mod 4). Take seed s = 3, so x₀ = s² mod N = 9. Compute the first 6 bits of the BBS sequence (x_{i+1} = x_i² mod 77, output LSB of each x_i). Then explain: why is the initial state taken as s² mod N rather than s itself?",
+      "hint": "Compute x₀ = 9 (LSB 1); x₁ = 9² mod 77 = 81 mod 77 = 4 (LSB 0); x₂ = 16 (LSB 0); x₃ = 256 mod 77 = 256−3·77 = 25 (LSB 1); x₄ = 625 mod 77 = 625−8·77 = 9 — the state returns to 9, confirming the periodic structure. For the second question: squaring once guarantees the state is a quadratic residue, which is the domain where squaring is a permutation.",
+      "has_solution": true
+    }
+  ],
+  "media": {},
+  "schema_version": 1
+}

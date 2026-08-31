@@ -1,0 +1,12 @@
+{
+  "exercises": [
+    {
+      "id": "m2prg-ex-1",
+      "solution": "Solution skeleton:\n- G deterministic, polynomial-time; there is ℓ: ℕ → ℕ with ℓ(k) > k such that for every PPT D, every positive polynomial p, all sufficiently large k:\n  |Pr[D(G(U_k))=1] − Pr[D(U_{ℓ(k)})=1]| < 1/p(k), probabilities over U_k / U_{ℓ(k)} and D's coins.\n- The generator is a fixed algorithm with a fixed polynomial time bound, e.g. O(k^2).\n- The distinguisher is any PPT algorithm — it may run in time cubic in the generator's running time.\n- Why this is intended: general-purpose means the same generator is safe for every efficient application, including applications that consume more resources than the generator itself; it is not a race between equals.\n- Consequence: the generator must fool algorithms it has never “seen”, so the definition cannot be tied to any particular test — this is what separates Definition 2.1 from ad-hoc test suites."
+    },
+    {
+      "id": "m2prg-ex-2",
+      "solution": "Solution skeleton:\n- A(x, r) uses r ∈ {0,1}^{ρ(|x|)}.\n- A_G(x): let k = min{i : ℓ(i) ≥ ρ(|x|)}, sample s ← U_k, and run A(x, G′(s)) where G′(s) is the ρ(|x|)-bit prefix of G(s).\n- Randomness complexity drops from ρ(n) to k = ℓ^{-1}(ρ(n)) — e.g., with ℓ(k) = k², from ρ to √ρ.\n- Proposition 2.3: for every PPT finder F and tester T, every positive polynomial p, and all sufficiently long n, Σ_x Pr[F(1ⁿ)=x]·|Δ_{A,T}(x)| < 1/p(n), where Δ_{A,T}(x) is the difference in T's acceptance between A and A_G on input x.\n- Meaning: no efficient method can locate an input on which the pseudorandom substitution is noticeable, so the generator is universal — it works for all efficient applications."
+    }
+  ]
+}

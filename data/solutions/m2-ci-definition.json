@@ -1,0 +1,12 @@
+{
+  "exercises": [
+    {
+      "id": "m2ci-ex-1",
+      "solution": "Solution skeleton:\n- Let D be any PPT distinguisher and let S_n = {z : D(z)=1}.\n- Then |Pr[D(X_n)=1] − Pr[D(Y_n)=1]| = |Pr[X_n∈S_n] − Pr[Y_n∈S_n]|.\n- By the max characterization of variation distance, |Pr[X_n∈S_n] − Pr[Y_n∈S_n]| ≤ Δ(X_n, Y_n).\n- Statistical closeness gives Δ(X_n, Y_n) ≤ 1/p(n) for every positive polynomial p and all sufficiently large n.\n- Hence for every D and every p, eventually the gap < 1/p(n): the ensembles are computationally indistinguishable (M2-2, COURSE.md §4)."
+    },
+    {
+      "id": "m2ci-ex-2",
+      "solution": "Solution skeleton:\n- Take X_k = G(U_k) and Y_k = U_{ℓ(k)} in Definition 2.4 with n = k.\n- Definition 2.1 says exactly that these two ensembles are computationally indistinguishable.\n- §2.3.1: an ensemble that is indistinguishable from the uniform ensemble is called pseudorandom — so Definition 2.1 says {G(U_k)}_k is pseudorandom.\n- The ensembles are polynomial-time constructible (sample s ← U_k, output G(s)).\n- Theorem 2.14: PRGs exist iff one-way functions exist; the “if” direction constructs such a pseudorandom ensemble from any one-way function, and the “only if” direction uses G itself (with stretch 2k) to build a one-way function."
+    }
+  ]
+}

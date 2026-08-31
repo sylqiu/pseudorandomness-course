@@ -1,0 +1,8 @@
+{
+  "exercises": [
+    {
+      "id": "m1tt-ex-1",
+      "solution": "Solution skeleton:\n- Randomness is not an inherent property of the event: the spinning coin's outcome is fully determined in principle.\n- Whether it is random depends on the observer: in alternatives 2–3 Bob cannot predict it (random for Bob); in alternative 4 a powerful computer can (not random).\n- Complexity theory formalizes “observer” as a class of algorithms (e.g., PPT); a distribution is pseudorandom if no such algorithm distinguishes it from uniform (Primer §1.1).\n- Hence pseudorandomness is relative to the observer's computational abilities: the same object, different verdicts for different observers."
+    }
+  ]
+}

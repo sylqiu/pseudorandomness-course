@@ -1,0 +1,63 @@
+{
+  "id": "m1-three-theories",
+  "module": "m1",
+  "kind": "theory",
+  "title": "Three Theories of Randomness",
+  "reading": {
+    "text": "Self-contained lesson. Optional background: Goldreich's Primer, Preface & Ch. 1 (three theories of randomness)",
+    "url": "https://www.wisdom.weizmann.ac.il/~oded/PSX/prg08.pdf"
+  },
+  "body": "## Why “random” needs three theories\n\nThe question of randomness has puzzled thinkers for ages, and the second half of the 20th century produced **three distinct theories** of randomness.\nThey differ in what they take randomness to be *about*: a distribution, a single object, or a relationship between an object and an observer.\n\n### 1. Shannon: randomness as lack of information\n\nThe first theory, initiated by Shannon, views randomness as **lack of information**, modeled by a probability distribution over the possible values of the missing data.\nPerfect randomness is the extreme case in which the information content is maximized — there is no redundancy at all — and it is associated with a **unique distribution: the uniform one**.\nBy definition, one cannot (deterministically) generate such perfect random strings from shorter random seeds: a deterministic process has no missing data left to be random.\n\n### 2. Kolmogorov: randomness as lack of structure\n\nThe second theory, initiated by Solomonoff, Kolmogorov, and Chaitin, views randomness as **lack of structure**, reflected in the length of the most succinct (effective) description of the object.\nThe randomness of a single string is measured by its **Kolmogorov complexity**: the length of the shortest program, for a fixed universal machine, that generates it.\nThis approach is **inherently intractable**: Kolmogorov complexity is uncomputable.\nAnd again, by definition, one cannot deterministically generate strings of high Kolmogorov complexity from short random seeds.\n\n### 3. Complexity theory: randomness as an effect on an observer\n\nThe third theory — the focus of this course — views randomness as **an effect on an observer**, and thus as relative to the observer's abilities of analysis.\nThe observer's abilities are captured by its computational abilities, so this theory of randomness is rooted in complexity theory.\nObjects are viewed as equal if they cannot be told apart by any efficient procedure.\nConsequently, a distribution that cannot be efficiently distinguished from the uniform distribution is considered random — or rather called **pseudorandom**.\nRandomness is not an “inherent” property of objects or distributions; it is relative to an observer and its computational abilities.\n\n## The Alice & Bob thought experiment \n\nAlice and Bob play “head or tail” in four ways; in each of them Alice flips an unbiased coin and Bob must guess its outcome before it hits the floor.\nThe alternatives differ only in the knowledge Bob has before making his guess:\n\n- **Alternative 1:** Bob announces his guess *before* Alice flips the coin — he wins with probability **1/2**.\n- **Alternative 2:** Bob guesses *while the coin is spinning*. The outcome is determined in principle by the coin's motion, but Bob lacks accurate information — still **1/2**.\n- **Alternative 3:** Bob has sophisticated equipment that provides accurate information on the coin's motion and the environment, but he **cannot process it in time** — still **1/2**.\n- **Alternative 4:** Bob's equipment feeds a powerful computer that solves the motion equations and outputs a prediction — Bob can now **substantially improve** his guess.\n\nThe conclusion: *the randomness of an event is relative to the information and computing resources at our disposal.*\nAt the extreme, even events fully determined by public information may be perceived as random by an observer that lacks the relevant information or the ability to process it.\nOur focus is on the lack of **sufficient processing power**, not on the lack of sufficient information.\nThe lack of processing power may be due to the formidable amount of computation required, or to the fact that the observer is very limited.\n\n## What this buys us\n\nBecause “random-looking” is defined relative to what efficient procedures can detect, a distribution can be **pseudorandom** — indistinguishable from uniform by any efficient procedure — while being fully determined by a short seed.\nThis is precisely the ingredient that makes the theory of pseudorandom generators possible: @def:prg-general\nAt the extreme, the approach says that the question of whether the world is deterministic or allows free choice is irrelevant: what matters is how the world looks to us and to various computationally bounded devices.\nIf some phenomenon looks random, we may treat it as if it were random; if we can generate sequences that no efficient procedure can tell apart from uniform, we can use them in any efficient randomized application instead of ideal coin tosses.",
+  "defs": [
+    {
+      "id": "observer-relative",
+      "name": "Randomness as an effect on an observer",
+      "statement": "A distribution is pseudorandom if no efficient procedure can distinguish it from the uniform distribution; (pseudo)randomness is relative to the observer's computational abilities.",
+      "intuition": "Randomness is not an inherent property of an object; it is in the eye of the computationally bounded beholder."
+    },
+    {
+      "id": "prg-general",
+      "name": "General-purpose pseudorandom generator (concept)",
+      "statement": "An efficient deterministic procedure that stretches a short random seed into a longer pseudorandom sequence that no efficient procedure can distinguish from uniform.",
+      "intuition": "One generator, fixed before any observer is known, whose output is safe to use in any efficient application."
+    }
+  ],
+  "theorems": [],
+  "checkpoints": [
+    {
+      "qid": "m1tt-cp-1",
+      "question": "Why is deterministic generation of random strings impossible in the Shannon and Kolmogorov senses, yet possible in the complexity-theoretic sense?",
+      "options": [
+        {
+          "text": "Shannon/Kolmogorov randomness is an inherent property of the object (maximal entropy, incompressibility), so a deterministic generator — whose output has only 2^|seed| possibilities — can never reach it; complexity-theoretic randomness is only about what efficient observers can detect.",
+          "is_correct": true
+        },
+        {
+          "text": "Because Shannon and Kolmogorov did not allow computers, only human observers.",
+          "is_correct": false
+        },
+        {
+          "text": "Because complexity-theoretic generators may use more random bits than they output.",
+          "is_correct": false
+        },
+        {
+          "text": "Because the complexity-theoretic definition only protects against polynomial-time algorithms, and patterns are invisible to them.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "In the first two theories, randomness is a property of the object itself: a distribution with maximal entropy, or an incompressible string. A deterministic generator fed a k-bit seed has at most 2^k possible outputs, so the entropy or Kolmogorov complexity of its output is bounded and perfect randomness is unreachable by definition. The complexity-theoretic notion instead demands only that no efficient procedure can tell the generated distribution from uniform — an observer-relative property that a deterministic generator can satisfy (M1-1 in COURSE.md §4)."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "m1tt-ex-1",
+      "prompt": "In your own words (at most 50 words), explain why pseudorandomness is said to be “subjective”. Use the Alice & Bob experiment to support your answer.",
+      "hint": "Compare Bob's alternatives: the same physical process (a spinning coin) is random for Bob in alternatives 2–3 but not in alternative 4. What changed? The observer's information and processing power.",
+      "has_solution": true
+    }
+  ],
+  "schema_version": 1,
+  "audio": {
+    "file": "m1-three-theories.mp3"
+  }
+}
