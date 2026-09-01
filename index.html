@@ -280,7 +280,7 @@ function expandChips(html){
     });
   return out;
 }
-/* Parse a block of markdown lines (paragraphs + lists) into HTML. */
+/* Parse a block of markdown lines (paragraphs + lists + blockquotes) into HTML. */
 function blocksToHtml(lines){
   let html = '';
   let para = [];
@@ -297,6 +297,8 @@ function blocksToHtml(lines){
   for (const raw of lines){
     const t = raw.trim();
     if (!t){ flushPara(); flushList(); continue; }
+    const bq = t.match(/^> ?(.*)$/);
+    if (bq){ flushPara(); flushList(); html += '<blockquote>' + inlineMd(esc(bq[1])) + '</blockquote>'; continue; }
     const li = t.match(/^[-*] (.*)$/);
     if (li){ flushPara(); if (!list) list = {tag:'ul', items:[]}; list.items.push(li[1]); continue; }
     const oli = t.match(/^\d+\.\s+(.*)$/);
@@ -339,18 +341,24 @@ function mdToHtml(md){
     /* blockquote: > ... */
     const bq = t.match(/^> ?(.*)$/);
     if (bq){ html += '<blockquote>' + inlineMd(esc(bq[1])) + '</blockquote>'; i++; continue; }
-    /* bold-lead auto containers: "**Definition 2.1 (...).** ..." etc. */
+    /* bold-lead auto containers: "**Definition 2.1 (...).** ..." — the container
+       swallows ALL following lines until the next block-level boundary:
+       a heading, another bold-lead keyword, a fence, or end of input.
+       This keeps multi-paragraph statements, formulas, lists and prose inside. */
     const bl = t.match(/^\*\*(Definition|Theorem|Proposition|Lemma|Corollary|Claim|Fact|Construction|Remark|Example|Proof)\b([^*]*?)\.\*\*\s*(.*)$/);
     if (bl){
       const kw = bl[1];
       const kind = BOLD_LEAD_KIND[kw] || 'thm';
-      const title = (kw + (bl[2] || '')).replace(/\.$/, '');
+      const title = (kind === 'proof' ? '' : (kw + (bl[2] || '')).replace(/\.$/, ''));
       const bodyLines = [bl[3]];
-      /* swallow continuation lines, including a following $$...$$ formula block */
       i++;
-      while (i < lines.length && lines[i].trim()){ bodyLines.push(lines[i]); i++; }
-      if (i < lines.length && lines[i].trim().startsWith('$$')){
-        while (i < lines.length && lines[i].trim()){ bodyLines.push(lines[i]); i++; }
+      while (i < lines.length){
+        const n = lines[i].trim();
+        if (!n){ bodyLines.push(''); i++; continue; }
+        if (/^#{2,4} /.test(n)) break;                                  // heading ends container
+        if (/^:::(def|thm|proof|con|ex|rem)/.test(n)) break;            // fence ends container
+        if (/^\*\*(Definition|Theorem|Proposition|Lemma|Corollary|Claim|Fact|Construction|Remark|Example|Proof)\b/.test(n)) break;  // next bold-lead keyword
+        bodyLines.push(lines[i]); i++;
       }
       html += boxFor(kind, BOX_LABELS[kind] || kw, title, blocksToHtml(bodyLines), '');
       continue;
