@@ -241,18 +241,17 @@ function entryBox(ref, entry, id){
   if (!entry) return '';
   const kind = ref === 'def' ? 'Definition' : 'Theorem';
   const body = inlineMd(esc(entry.statement || ''));
-  let extra = '';
-  if (ref === 'thm' && entry.proof){
-    extra += boxFor('proof', 'Proof', '', inlineMd(esc(entry.proof)), '');
-  }
-  if (entry.intuition){
-    extra += '<div class="box-intuition"><b>Intuition.</b> ' + inlineMd(esc(entry.intuition)) + '</div>';
-  }
-  return '<div class="box ' + (ref === 'def' ? 'def' : 'thm') + '-box"' + (id ? ' id="' + id + '"' : '') + '>'
+  let html = '<div class="box ' + (ref === 'def' ? 'def' : 'thm') + '-box"' + (id ? ' id="' + id + '"' : '') + '>'
     + '<div class="box-label">' + esc(kind) + '</div>'
     + '<div class="box-title">' + esc(entry.name || kind) + '</div>'
     + '<div class="box-body">' + body + '</div>'
-    + extra + '</div>';
+    + (entry.intuition ? '<div class="box-intuition"><b>Intuition.</b> ' + inlineMd(esc(entry.intuition)) + '</div>' : '')
+    + '</div>';
+  /* proof renders as its own sibling container, not nested inside the theorem */
+  if (ref === 'thm' && entry.proof){
+    html += boxFor('proof', 'Proof', '', inlineMd(esc(entry.proof)), '');
+  }
+  return html;
 }
 /* Expand @def:x / @thm:x chips: the FIRST mention of each entry becomes a full
    container box; later mentions become chips that scroll to that box. */
@@ -357,6 +356,7 @@ function mdToHtml(md){
         if (!n){ bodyLines.push(''); i++; continue; }
         if (/^#{2,4} /.test(n)) break;                                  // heading ends container
         if (/^:::(def|thm|proof|con|ex|rem)/.test(n)) break;            // fence ends container
+        if (/^@(def|thm):/.test(n)) break;                              // chip reference ends container
         if (/^\*\*(Definition|Theorem|Proposition|Lemma|Corollary|Claim|Fact|Construction|Remark|Example|Proof)\b/.test(n)) break;  // next bold-lead keyword
         bodyLines.push(lines[i]); i++;
       }
