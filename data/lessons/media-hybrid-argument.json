@@ -7,29 +7,29 @@
     "text": "Self-contained lesson. Optional background: Goldreich's Primer, Ch. 2.3–2.4 (hybrid argument, stretch amplification)",
     "url": "https://www.wisdom.weizmann.ac.il/~oded/PSX/prg08.pdf"
   },
-  "body": "## The hybrid argument: the central proof technique\n\nThe hybrid argument turns a seemingly hard indistinguishability claim into a chain of easy ones. Given two ensembles X and Y, build a sequence of hybrids H_0,..., H_k in which consecutive hybrids differ in only one component. If every neighboring pair is computationally indistinguishable, the extremes are too:\n\n$$\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i) \\le k \\cdot \\frac{\\varepsilon}{k} = \\varepsilon$$\n\nThe total advantage is bounded by the sum of the per-step advantages (triangle-inequality intuition,), so a polynomial number of steps costs only a polynomial factor (see @def:hybrid).\n\nThis technique powers two workhorse theorems:\n\n- **Proposition 2.6** — single-sample indistinguishability implies indistinguishability by any polynomial number of samples, for polynomial-time constructible ensembles (@thm:prop26). This is what justifies reusing a short key for many messages.\n- **Proposition 2.8** — stretch amplification: any PRG (even one stretching by a single bit, k → k+1) can be converted into a PRG with any desired polynomially bounded stretch (@thm:prop28). This is why we can ignore the specific stretch when talking about the mere existence of PRGs.\n\nWatch the animation to see the chain built step by step.",
+  "body": "## The hybrid argument: the central proof technique\n\nThe hybrid argument turns a seemingly hard indistinguishability claim into a chain of easy ones. Given two ensembles $X$ and $Y$, build a sequence of hybrids $H_0, \\ldots, H_k$ in which consecutive hybrids differ in only one component. If every neighboring pair is computationally indistinguishable, the extremes are too:\n\n$$\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i) \\le k \\cdot \\frac{\\varepsilon}{k} = \\varepsilon$$\n\nThe total advantage is bounded by the sum of the per-step advantages (triangle-inequality intuition,), so a polynomial number of steps costs only a polynomial factor (see @def:hybrid).\n\nThis technique powers two workhorse theorems:\n\n- **Proposition 2.6** — single-sample indistinguishability implies indistinguishability by any polynomial number of samples, for polynomial-time constructible ensembles (@thm:prop26). This is what justifies reusing a short key for many messages.\n- **Proposition 2.8** — stretch amplification: any PRG (even one stretching by a single bit, $k \\to k+1$) can be converted into a PRG with any desired polynomially bounded stretch (@thm:prop28). This is why we can ignore the specific stretch when talking about the mere existence of PRGs.\n\nWatch the animation to see the chain built step by step.",
   "defs": [
     {
       "id": "hybrid",
       "name": "The hybrid argument (hybrid technique)",
-      "statement": "To establish indistinguishability of two ensembles X and Y, define hybrids H_0,..., H_k with H_0 = Y and H_k = X, such that consecutive hybrids differ only slightly. If each neighboring pair is computationally indistinguishable, then the distinguishing advantage of the extremes is bounded by the sum of the per-step advantages: $\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i)$.",
-      "intuition": "A chain of k small gaps telescopes into one total gap via the triangle inequality; with k polynomially bounded, a negligible per-step gap yields a negligible total gap."
+      "statement": "To establish indistinguishability of two ensembles $X$ and $Y$, define hybrids $H_0, \\ldots, H_k$ with $H_0 = Y$ and $H_k = X$, such that consecutive hybrids differ only slightly. If each neighboring pair is computationally indistinguishable, then the distinguishing advantage of the extremes is bounded by the sum of the per-step advantages: $\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i)$.",
+      "intuition": "A chain of $k$ small gaps telescopes into one total gap via the triangle inequality; with $k$ polynomially bounded, a negligible per-step gap yields a negligible total gap."
     }
   ],
   "theorems": [
     {
       "id": "prop26",
       "name": "Prop 2.6: many samples stay indistinguishable",
-      "statement": "If X = {X_n} and Y = {Y_n} are polynomial-time constructible and computationally indistinguishable by a single sample, then for every positive polynomial s(·) they are indistinguishable by s(·) independent samples.",
+      "statement": "If $X = \\{X_n\\}$ and $Y = \\{Y_n\\}$ are polynomial-time constructible and computationally indistinguishable by a single sample, then for every positive polynomial $s(\\cdot)$ they are indistinguishable by $s(\\cdot)$ independent samples.",
       "intuition": "What no efficient test can tell apart once, it cannot tell apart polynomially many times — up to a linear loss.",
-      "proof": "hybrids H_n^i = X^i Y^{s(n)−i}; a distinguisher of the extremes with gap ε yields a distinguisher of a random neighboring pair with gap ε/s(n), which yields a single-sample distinguisher that samples the surrounding entries itself (using constructibility)."
+      "proof": "hybrids $H_n^i = X^i Y^{s(n)-i}$; a distinguisher of the extremes with gap $\\varepsilon$ yields a distinguisher of a random neighboring pair with gap $\\varepsilon/s(n)$, which yields a single-sample distinguisher that samples the surrounding entries itself (using constructibility)."
     },
     {
       "id": "prop28",
       "name": "Prop 2.8: stretch amplification",
-      "statement": "Let G₁ be a PRG with stretch ℓ₁(k) = k + 1, and ℓ any polynomially bounded, polynomial-time computable stretch function. Define G(s) = σ₁σ₂⋯σ_{ℓ(|s|)}, where x₀ = s and xᵢσᵢ = G₁(x_{i−1}) — σᵢ is the last bit of G₁(x_{i−1}) and xᵢ is the |s|-bit prefix of G₁(x_{i−1}). Then G is a PRG with stretch ℓ.",
-      "intuition": "A single-bit stretch is enough: by iterating G₁ and keeping the output bits, any polynomial stretch is reachable at no extra assumption.",
-      "proof": "hybrid over i = 0,…,ℓ(k) with H_k^i = U_i ∘ g_{ℓ(k)−i}(U_k) (g_j = j-bit prefix of G); the extremes are G(U_k) and U_{ℓ(k)}, and distinguishing neighboring hybrids reduces to distinguishing G₁(U_k) from U_{k+1}."
+      "statement": "Let $G_1$ be a PRG with stretch $\\ell_1(k) = k + 1$, and $\\ell$ any polynomially bounded, polynomial-time computable stretch function. Define $G(s) = \\sigma_1\\sigma_2\\cdots\\sigma_{\\ell(|s|)}$, where $x_0 = s$ and $x_i\\sigma_i = G_1(x_{i-1})$ — $\\sigma_i$ is the last bit of $G_1(x_{i-1})$ and $x_i$ is the $|s|$-bit prefix of $G_1(x_{i-1})$. Then $G$ is a PRG with stretch $\\ell$.",
+      "intuition": "A single-bit stretch is enough: by iterating $G_1$ and keeping the output bits, any polynomial stretch is reachable at no extra assumption.",
+      "proof": "hybrid over $i = 0, \\ldots, \\ell(k)$ with $H_k^i = U_i \\circ g_{\\ell(k)-i}(U_k)$ ($g_j$ = $j$-bit prefix of $G$); the extremes are $G(U_k)$ and $U_{\\ell(k)}$, and distinguishing neighboring hybrids reduces to distinguishing $G_1(U_k)$ from $U_{k+1}$."
     }
   ],
   "media": {
