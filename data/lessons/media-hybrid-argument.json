@@ -12,7 +12,7 @@
     {
       "id": "hybrid",
       "name": "The hybrid argument (hybrid technique)",
-      "statement": "To establish indistinguishability of two ensembles X and Y, define hybrids H_0,..., H_k with H_0 = Y and H_k = X, such that consecutive hybrids differ only slightly. If each neighboring pair is computationally indistinguishable, then the distinguishing advantage of the extremes is bounded by the sum of the per-step advantages: $$\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i)$$.",
+      "statement": "To establish indistinguishability of two ensembles X and Y, define hybrids H_0,..., H_k with H_0 = Y and H_k = X, such that consecutive hybrids differ only slightly. If each neighboring pair is computationally indistinguishable, then the distinguishing advantage of the extremes is bounded by the sum of the per-step advantages: $\\mathrm{Adv}(D) \\le \\sum_{i=1}^{k} \\mathrm{Adv}(H_{i-1}, H_i)$.",
       "intuition": "A chain of k small gaps telescopes into one total gap via the triangle inequality; with k polynomially bounded, a negligible per-step gap yields a negligible total gap."
     }
   ],

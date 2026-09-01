@@ -18,7 +18,7 @@
     {
       "id": "ensemble",
       "name": "Probability ensemble",
-      "statement": "An infinite sequence of random variables $$\\{Z_n\\}_{n \\in \\mathbb{N}}$$ such that each Z_n ranges over strings of length polynomially related to n.",
+      "statement": "An infinite sequence of random variables $\\{Z_n\\}_{n \\in \\mathbb{N}}$ such that each Z_n ranges over strings of length polynomially related to n.",
       "intuition": "A family of distributions indexed by a size parameter n — the unit of comparison in computational indistinguishability."
     }
   ],
