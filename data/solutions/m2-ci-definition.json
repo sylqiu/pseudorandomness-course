@@ -6,7 +6,7 @@
     },
     {
       "id": "m2ci-ex-2",
-      "solution": "Solution skeleton:\n- Take X_k = G(U_k) and Y_k = U_{ℓ(k)} in Definition 2.4 with n = k.\n- Definition 2.1 says exactly that these two ensembles are computationally indistinguishable.\n- §2.3.1: an ensemble that is indistinguishable from the uniform ensemble is called pseudorandom — so Definition 2.1 says {G(U_k)}_k is pseudorandom.\n- The ensembles are polynomial-time constructible (sample s ← U_k, output G(s)).\n- Theorem 2.14: PRGs exist iff one-way functions exist; the “if” direction constructs such a pseudorandom ensemble from any one-way function, and the “only if” direction uses G itself (with stretch 2k) to build a one-way function."
+      "solution": "Solution skeleton:\n- Take $X_k = G(U_k)$ and $Y_k = U_{\\ell(k)}$ in Definition 2.4 with $n = k$.\n- Definition 2.1 says exactly that these two ensembles are computationally indistinguishable.\n- §2.3.1: an ensemble indistinguishable from the uniform ensemble is called pseudorandom — so Definition 2.1 says $\\{G(U_k)\\}_k$ is pseudorandom.\n- The ensembles are polynomial-time constructible (sample $s \\leftarrow U_k$, output $G(s)$), so this is the non-trivial kind of indistinguishability the Primer is after."
     }
   ]
 }

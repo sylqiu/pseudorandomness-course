@@ -1,0 +1,12 @@
+{
+  "exercises": [
+    {
+      "id": "m4owf-ex-1",
+      "solution": "Solution skeleton:\n- f(x,y) = G(x) for x,y ∈ {0,1}^k is polynomial-time computable and length-preserving (2k → 2k).\n- Suppose PPT A′ inverts f with success δ(k) = Pr[A′(f(U_{2k})) ∈ f⁻¹(f(U_{2k}))] non-negligible.\n- Distinguisher D(z): run (x,y) ← A′(z); output 1 iff G(x) = z.\n- On z = G(U_k) (i.e. z = f(x,y) for uniform (x,y)): A′ succeeds with probability δ(k), and when it does, G(x)=z, so D outputs 1 with probability ≥ δ(k) — non-negligible.\n- On z = U_{2k}: D outputs 1 only if z = G(x) for some x ∈ {0,1}^k, i.e. z lies in f's range. The range has at most 2^k strings, so Pr[D(U_{2k})=1] ≤ 2^k / 2^{2k} = 2^{-k} — negligible.\n- Hence |Pr[D(G(U_k))=1] − Pr[D(U_{2k})=1]| ≥ δ(k) − 2^{-k}, which is non-negligible, contradicting that G is a PRG. So f is one-way. ∎\n- The range-size bound is the crux: an inverter is useless against U_{2k} precisely because a random 2k-bit string is in the range with probability ≤ 2^{-k}, while on G(U_k) it is always in the range."
+    },
+    {
+      "id": "m4owf-ex-2",
+      "solution": "Solution skeleton:\n- Why it fails: Proposition 2.12 uses that f is 1-1 and length-preserving, so f(U_n) is a permutation of {0,1}^n and hence uniform. For a non-1-1 f, f(U_n) is concentrated on a smaller range and is statistically far from uniform, so G(s)=f(s)b(s) is immediately distinguishable regardless of b.\n- Step 1 (entropy smoothing via direct product): replace f by F(x_1,…,x_{k^{2/3}})=(f(x_1),…,f(x_{k^{2/3}})) so the log-probability-mass of F(U_k) concentrates near the entropy H(F(U_k)), making 'hash to the entropy' a well-defined single length.\n- Step 2 (hashing to the entropy): apply a universal hash to F(U_k) to obtain an almost-uniform string of length ≈ H(F(U_k)); this turns an unpredictable-but-non-uniform source into a near-uniform one, at the cost of shrinking to k′<k bits.\n- Step 3 (seed compensation): hash the seed U_k itself to recover the missing k−k′ bits; this hash does not make inversion easier, so one-wayness survives while stretch is restored."
+    }
+  ]
+}

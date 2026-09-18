@@ -1,0 +1,92 @@
+{
+  "id": "m4-owf-prg",
+  "module": "m4",
+  "kind": "theory",
+  "title": "One-Way Functions and the Existence of PRGs (Theorem 2.14)",
+  "reading": {
+    "text": "Self-contained lesson. Optional background: Goldreich's Primer, §2.5.1 & §2.5.4 (one-way functions and Theorem 2.14); ln00a §2.3",
+    "url": "https://www.wisdom.weizmann.ac.il/~oded/PSX/prg08.pdf"
+  },
+  "body": "## The existence question: do pseudorandom generators exist at all?\n\nModules 2 and 3 defined pseudorandom generators and showed how to *use* them — but nothing yet tells us whether they exist. Definition 2.1 is a promise; a promise is only useful if something satisfies it. Chapter 2 closes by answering the existence question in the strongest possible form: **pseudorandom generators exist exactly when one-way functions exist.**\n\n@thm:thm214\n\nThe two directions have very different difficulty. The easy direction — a PRG yields a one-way function — is a three-line reduction, proved below in full. The hard direction — any one-way function yields a PRG — is the celebrated Håstad–Impagliazzo–Levin–Luby (HILL) construction, deep and technically demanding; the Primer itself only sketches its ideas. This lesson proves the easy direction completely and, for the hard direction, explains precisely *why* it is hard and *what* the HILL construction does about it. The concrete, implementable special case (hard-core predicates + BMY + BBS) is the next lesson.\n\n## Definition 2.9: one-way functions\n\n@def:owf\n\nThree subtleties in the definition matter:\n\n- **\"Easy to evaluate\" is exact; \"hard to invert\" is average-case.** Inversion must fail with overwhelming probability over a uniformly random input — not merely on some specially constructed hard input. A function that is hard to invert on a rare, hard-to-find fraction of inputs is *not* one-way.\n- **The auxiliary input $1^n$.** The inverter receives $1^n$ so it is allowed time polynomial in the *input* length even when $f$ shrinks its input drastically (e.g. $|f(x)| = O(\\log |x|)$). Without loss of generality $f$ is length-preserving, in which case $1^n$ is redundant.\n- **Any preimage counts.** The inverter need not recover the specific $x$; it wins by outputting *any* element of $f^{-1}(f(x))$. For 1-1 $f$ this is the same string, but in general there may be many valid preimages.\n\nOne-wayness is a *weak* promise: it says nothing about partial information. For $f'(x,r) = (f(x), r)$ the second half $r$ of the input appears verbatim in the output, so half the input is trivially recoverable even though $f'$ is one-way. Building pseudorandomness from one-wayness therefore requires extracting *unpredictable bits*, not hiding whole inputs — the subject of hard-core predicates (next lesson).\n\n## The easy direction: PRG $\\implies$ OWF\n\nThe full reduction is in the proof of @thm:thm214, stated below. The one-sentence version: take $G$ with stretch $2k$ and set $f(x,y) = G(x)$; inverting $f$ means recovering the seed $x$ from its pseudorandom image $G(x)$, and an inverter that does this on $G(U_k)$ but (necessarily) fails on $U_{2k}$ — because only a $2^{-k}$ fraction of uniform $2k$-bit strings are in $f$'s range — is exactly a distinguisher.\n\n## The hard direction: OWF $\\implies$ PRG, and why it is hard\n\nSuppose we naively reuse the template from the concrete construction: given a one-way $f$ with a hard-core $b$, output $G(s) = f(s)\\, b(s)$. Why does this fail for a *general* (non-1-1) one-way function? The $n$-bit prefix $f(U_n)$ is not uniformly distributed — and, worse, may not even be *pseudorandom* — because $f$ collapses information. If $f$ maps many inputs onto few outputs, $f(U_n)$ concentrates on a small range and is trivially distinguishable from uniform. The 1-1 hypothesis of Proposition 2.12 is precisely what made $f(s)$ a permutation, hence uniform.\n\nThe HILL construction overcomes this with two hashing ideas:\n\n1. **Smooth the entropy, then hash it away.** Hash $f(U_k)$ down to an almost-uniform string whose length is comparable to the *entropy* of $f(U_k)$. (Universal hashing: a function drawn from a pairwise-independent family maps a source with sufficient min-entropy to a near-uniform output — the leftover-hash principle.) The snag: the entropy of $f(U_k)$ is at most $k$, and typically strictly less, so \"hashing down to the entropy\" *shrinks* the output to some $k' < k$ — the opposite of stretching.\n\n2. **Compensate the loss from the seed itself.** Recover the missing $k - k'$ bits by hashing the *seed* $U_k$ directly. The point is that this $(k-k')$-bit hash value does not make the inversion task any easier: it reveals almost nothing about which preimage produced $f(x)$, so the one-wayness of $f$ survives.\n\nMaking idea 1 precise needs a preliminary step the Primer records in a footnote: first take a **direct product** of many copies of $f$,\n\n$$F(x_1, \\dots, x_{k^{2/3}}) \\;=\\; \\big(f(x_1), \\dots, f(x_{k^{2/3}})\\big), \\qquad x_i \\in \\{0,1\\}^{k^{1/3}},$$\n\nso that the logarithm of the probability mass of a value of $F(U_k)$ concentrates tightly around the entropy of $F(U_k)$ — a law-of-large-numbers effect over many independent copies. Only then is \"hash to the entropy\" well-defined as a single length. Implementing all of this — entropy smoothing, the two hashes, and the security reduction — is far more delicate than the sketch suggests, and the Primer ends the section with the remark that \"an alternative construction would be most appreciated.\"\n\n**The quantitative caveat (§2.7.1).** Even the HILL construction is not free of weakness: it yields only $(T',F')$-strong generators with $t'(k) = t(k^\\varepsilon)/\\mathrm{poly}(k)$ for some fixed $\\varepsilon$ (the Primer notes $\\varepsilon = 1/8$ will do), rather than the desired $t(\\ell(k))/\\mathrm{poly}(k)$. This gap is exactly why derandomization (Module 6) needs a genuinely different route.\n\n## Why this matters\n\n- **It closes the loop of Chapter 2.** Definitions (M2) → technique (M3) → construction (M4). Theorem 2.14 is the backbone: the ingredient the whole course builds on — one-way functions — is provably the *right* raw material.\n- **Pseudorandomness = average-case hardness.** The theorem says \"an efficient algorithm can stretch a short seed into a long unpredictable stream\" if and only if \"there exist functions that are easy to compute but hard to invert on average.\" Randomness in the computational sense is a form of difficulty.\n- **One-way functions are the minimal cryptographic assumption.** They are the weakest, most widely believed assumption in cryptography, and Theorem 2.14 shows they already buy pseudorandom generators — and hence (via GGM, Module 5) pseudorandom functions, encryption, and more.",
+  "defs": [
+    {
+      "id": "owf",
+      "name": "One-way function (Definition 2.9)",
+      "statement": "A function $f: \\{0,1\\}^* \\to \\{0,1\\}^*$ is **one-way** if:\n\n1. **Easy to evaluate:** there is a polynomial-time algorithm $A$ with $A(x) = f(x)$ for every $x \\in \\{0,1\\}^*$.\n2. **Hard to invert:** for every probabilistic polynomial-time algorithm $A'$, every positive polynomial $p$, and all sufficiently large $n$,\n\n$$\\Pr_{x \\leftarrow \\{0,1\\}^n}\\big[A'(f(x), 1^n) \\in f^{-1}(f(x))\\big] < \\frac{1}{p(n)}$$\n\nwhere the probability is over $x$ uniformly distributed in $\\{0,1\\}^n$ and over the internal coin tosses of $A'$. Here $f^{-1}(f(x))$ denotes the full preimage set $\\{y : f(y) = f(x)\\}$.",
+      "intuition": "Easy to compute forward, hard to invert on average: no efficient algorithm, given $f(x)$ for a random $x$, finds any preimage with non-negligible probability."
+    }
+  ],
+  "theorems": [
+    {
+      "id": "thm214",
+      "name": "Theorem 2.14: PRGs exist iff one-way functions exist",
+      "statement": "**Theorem 2.14.** Pseudorandom generators exist if and only if one-way functions exist.",
+      "intuition": "Pseudorandomness and average-case hardness are the same phenomenon: one-way functions are exactly the raw material from which general-purpose PRGs can be built, and no weaker ingredient suffices.",
+      "proof": "*Easy direction (PRG $\\implies$ one-way function).* Let $G$ be a PRG with stretch $\\ell(k) = 2k$, and define $f(x,y) = G(x)$ for $x, y \\in \\{0,1\\}^k$. Then $f$ is polynomial-time computable and length-preserving (it maps $2k$ bits to $2k$ bits). We show $f$ is one-way.\n\nSuppose toward contradiction that some PPT $A'$ inverts $f$ with non-negligible probability. Then $A'$ distinguishes $G(U_k)$ from $U_{2k}$ as follows. On input $z \\in \\{0,1\\}^{2k}$, run $A'$ to obtain $(x,y) \\in f^{-1}(z)$ (so $f(x,y) = z$, i.e. $G(x) = z$), and accept if $G(x) = z$ — which always holds when $A'$ succeeds. On the distribution $G(U_k)$ (equivalently $f(U_{2k})$), $A'$ succeeds — and the distinguisher accepts — with non-negligible probability. On the truly uniform distribution $U_{2k}$, however, the probability that $z$ has any preimage under $f$ at all is at most $2^k / 2^{2k} = 2^{-k}$, because $f$'s range is exactly $\\{G(x) : x \\in \\{0,1\\}^k\\}$; hence the distinguisher accepts with negligible probability. The gap is non-negligible, contradicting pseudorandomness. Therefore $f$ is one-way. ∎\n\n*Hard direction (OWF $\\implies$ PRG).* The known construction (HILL) is too complex for the Primer, which gives only a rough overview; the full proof appears in the research literature [25]. The two core ideas, expanded in the lesson body, are:\n\n1. **Entropy smoothing + hashing.** First amplify $f$ into a direct product $F(x_1,\\dots,x_{k^{2/3}}) = (f(x_1),\\dots,f(x_{k^{2/3}}))$ so that the log-probability-mass of $F(U_k)$ concentrates near the entropy $H(F(U_k))$ (law of large numbers over the copies). Then hash $F(U_k)$ — via a universal hash family — down to an almost-uniform string of length comparable to $H(F(U_k))$. This turns \"unpredictable but non-uniform\" into \"almost uniform\", at the cost of shrinking to $k' < k$ bits.\n\n2. **Seed compensation.** Recover the missing $k - k'$ bits by hashing the seed $U_k$ itself; crucially, this second hash value does not make inverting $f$ (or $F$) any easier, so one-wayness survives.\n\nIterating these steps and applying stretch amplification (Construction 2.7) yields a PRG of any polynomial stretch. The quantitative price is recorded in §2.7.1: the construction yields only $(T',F')$-strong generators with $t'(k) = t(k^\\varepsilon)/\\mathrm{poly}(k)$ for some fixed $\\varepsilon$ (e.g. $\\varepsilon = 1/8$), not the ideal $t(\\ell(k))/\\mathrm{poly}(k)$ — a gap that drives the separate derandomization theory of Chapter 3. ∎"
+    }
+  ],
+  "checkpoints": [
+    {
+      "qid": "m4owf-cp-1",
+      "question": "Why does the naive construction G(s) = f(s)∘b(s) (a hard-core bit appended to f(s)) fail to be a PRG for a general one-way function f?",
+      "options": [
+        {
+          "text": "It relies on f(U_n) being uniform, which holds only when f is a 1-1 permutation; a general one-way function can collapse many inputs onto few outputs, so f(U_n) concentrates on a small, trivially distinguishable range.",
+          "is_correct": true
+        },
+        {
+          "text": "Because a hard-core predicate only exists for 1-1 functions.",
+          "is_correct": false
+        },
+        {
+          "text": "Because one-way functions are required to shrink their input, so f(s) is shorter than s and there is no stretch.",
+          "is_correct": false
+        },
+        {
+          "text": "Because the hard-core bit b(s) is always 0 with high probability.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "Proposition 2.12's proof begins by observing that the n-bit prefix f(U_n) is uniform *because f is a permutation of {0,1}^n* (1-1 and length-preserving). For a general one-way function this fails: f may map many inputs to the same output, so f(U_n) is supported on a small range and is statistically (and computationally) distinguishable from uniform. Hard-core predicates exist for *every* one-way function (Theorem 2.11), and one-way functions need not shrink their input (they are length-preserving w.l.o.g.); the real obstacle is the loss of uniformity in f(U_n), not the existence or bias of b."
+    },
+    {
+      "qid": "m4owf-cp-2",
+      "question": "What are the two hashing ideas in the HILL construction, and why is the direct-product step needed first?",
+      "options": [
+        {
+          "text": "Hash f(U_k) to an almost-uniform string of length ≈ its entropy, then compensate the k′<k length loss by hashing the seed itself; the direct product first concentrates the log-probability-mass around the entropy so that 'hash to the entropy' is a single well-defined length.",
+          "is_correct": true
+        },
+        {
+          "text": "Hash the seed to entropy length first, then hash f(U_k) to recover the lost bits.",
+          "is_correct": false
+        },
+        {
+          "text": "Hash f(U_k) down to a single bit, then repeat this k times to get k output bits.",
+          "is_correct": false
+        },
+        {
+          "text": "Take a direct product to make f length-preserving, then apply Proposition 2.12 directly.",
+          "is_correct": false
+        }
+      ],
+      "explanation": "The two ideas, in order: (1) hash f(U_k) down to length ≈ its entropy to get an almost-uniform string, which unfortunately shrinks to k′<k bits; (2) recover the missing k−k′ bits by hashing the seed U_k itself, which does not help inversion. The direct-product step F(x_1,…,x_{k^{2/3}})=(f(x_1),…,f(x_{k^{2/3}})) is needed so that the log of the probability mass of F(U_k) concentrates near the entropy — otherwise 'length comparable to the entropy' is not a well-defined quantity for a single value of f(U_k). The direct product does not make f length-preserving in the 1-1 sense, so Proposition 2.12 still cannot be applied directly."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "m4owf-ex-1",
+      "prompt": "Prove the easy direction of Theorem 2.14 in full: a PRG G with stretch ℓ(k) = 2k yields the one-way function f(x,y) = G(x). Be precise about why the range size bounds the probability that a uniform 2k-bit string has a preimage under f.",
+      "hint": "Assume a PPT inverter A′ succeeds with non-negligible probability. Build a distinguisher D: on input z, run A′, and accept iff G(x)=z for the recovered (x,y). Compare Pr[D(G(U_k))=1] with Pr[D(U_{2k})=1] using the fact that f's range is {G(x) : x ∈ {0,1}^k}, which has at most 2^k strings.",
+      "has_solution": true
+    },
+    {
+      "id": "m4owf-ex-2",
+      "prompt": "Explain why G(s) = f(s)∘b(s) fails for a non-1-1 one-way function, and state (in one or two sentences each) the three steps of the HILL construction: entropy smoothing via the direct product, hashing to the entropy, and seed compensation.",
+      "hint": "The prefix must be uniform for the Proposition 2.12 argument; a non-1-1 f loses information, so f(U_n) is not uniform. For the HILL steps, recall the roles of the direct product, the first (entropy) hash, and the second (seed) hash.",
+      "has_solution": true
+    }
+  ],
+  "media": {},
+  "schema_version": 1
+}

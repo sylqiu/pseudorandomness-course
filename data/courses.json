@@ -38,17 +38,6 @@
         ]
       },
       {
-        "id": "checkpoint",
-        "title": "Checkpoints: M1 & M2",
-        "lessons": [
-          {
-            "id": "m1-m2-checkpoints",
-            "title": "Checkpoints: M1 & M2",
-            "kind": "mcq"
-          }
-        ]
-      },
-      {
         "id": "m3",
         "title": "Hybrid Argument & Secure Encryption",
         "lessons": [
@@ -61,8 +50,13 @@
       },
       {
         "id": "m4",
-        "title": "Constructions: Hard-Core Predicates, BMY, and BBS",
+        "title": "Constructions: From One-Way Functions to Pseudorandom Generators",
         "lessons": [
+          {
+            "id": "m4-owf-prg",
+            "title": "One-Way Functions and the Existence of PRGs (Theorem 2.14)",
+            "kind": "theory"
+          },
           {
             "id": "m4-bmy-bbs",
             "title": "A Concrete PRG: Hard-Core Predicates, the BMY Construction, and BBS",
@@ -71,12 +65,76 @@
         ]
       },
       {
-        "id": "media",
-        "title": "Core Visualizations",
+        "id": "m5",
+        "title": "Pseudorandom Functions & the GGM Construction",
         "lessons": [
           {
-            "id": "media-hybrid-argument",
-            "title": "The Hybrid Argument — Core Visualization",
+            "id": "m5-prf-definition",
+            "title": "Pseudorandom Functions: Direct Access to Huge Pseudorandom Objects",
+            "kind": "theory"
+          },
+          {
+            "id": "m5-ggm-construction",
+            "title": "The GGM Construction: PRGs Make PRFs",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "m6",
+        "title": "Derandomization: Canonical Derandomizers & the NW Generator",
+        "lessons": [
+          {
+            "id": "m6-canonical-derandomizer",
+            "title": "The Canonical Derandomizer: The Derandomization Paradigm, Inverted",
+            "kind": "theory"
+          },
+          {
+            "id": "m6-nw-generator",
+            "title": "The Nisan-Wigderson Generator: Turning Hardness into Pseudorandomness",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "m7",
+        "title": "Space-Bounded Distinguishers",
+        "lessons": [
+          {
+            "id": "m7-space-bounded",
+            "title": "Space-Bounded Distinguishers: Nisan and INW Generators",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "m8",
+        "title": "Special-Purpose Generators",
+        "lessons": [
+          {
+            "id": "m8-pairwise",
+            "title": "Pairwise Independence: Maximum Randomness on a Tiny Seed",
+            "kind": "theory"
+          },
+          {
+            "id": "m8-small-bias",
+            "title": "Small-Bias Generators: Fooling All Linear Tests",
+            "kind": "theory"
+          },
+          {
+            "id": "m8-expander-walks",
+            "title": "Random Walks on Expanders: Simulating Independence with Few Random Bits",
+            "kind": "theory"
+          }
+        ]
+      },
+      {
+        "id": "m9",
+        "title": "Extractors, the XOR Lemma & Historical Perspective",
+        "lessons": [
+          {
+            "id": "m9-extractors-xor",
+            "title": "Extractors and the XOR Lemma: From Weak Randomness to Hardness Amplification",
             "kind": "theory"
           }
         ]
